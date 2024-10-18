@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_data_collection/screens/login_screen/login_screen.dart';
 import '../welcome_screen.dart';
-import '../sign_up_screen/sign_up_screen.dart';
-import '../home_screen/navbar_screen.dart';
 
-class LoginScreen extends StatefulWidget {
+class SignUpScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => InitState();
 }
 
-class InitState extends State<LoginScreen> {
+class InitState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -27,7 +26,7 @@ class InitState extends State<LoginScreen> {
             top: isSmallScreen ? screenSize.height * 0.1 : screenSize.height * 0.2,
             left: 20, // 20 pixels depuis la gauche
             child: const Text(
-              'Se connecter',
+              'Créer un compte',
               style: TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,
@@ -75,6 +74,7 @@ class _FormContent extends StatefulWidget {
 
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
+  bool _rememberMe = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -128,9 +128,9 @@ class __FormContentState extends State<_FormContent> {
                   return 'Ce champ ne peut pas être vide';
                 }
 
-                // if (value.length < 6) {
-                //   return 'Password must be at least 6 characters';
-                // }
+                if (value.length < 6) {
+                  return 'Le mot de passe doit au moins contenir 6 caractères';
+                }
                 return null;
               },
               obscureText: !_isPasswordVisible,
@@ -161,25 +161,6 @@ class __FormContentState extends State<_FormContent> {
             ),
 
             _gap(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end, // Aligne le texte à droite
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    // Logique de "Mot de passe oublié" ici
-                  },
-                  child: const Text(
-                    'Mot de passe oublié ?',
-                    style: TextStyle(
-                      color: Color(0xFF8c6023), // Vous pouvez personnaliser la couleur
-                      decoration: TextDecoration.none, // Souligne le texte
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            _gap(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -187,23 +168,18 @@ class __FormContentState extends State<_FormContent> {
                   foregroundColor: Colors.white, 
                   backgroundColor: Color(0xFFC3AD65),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)
-                  ),
+                      borderRadius: BorderRadius.circular(4)),
                 ),
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Connexion',
+                    'Créer un compte',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     /// do something
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NavBarScreen()),
-                  );
                   }
                 },
               ),
@@ -217,7 +193,7 @@ class __FormContentState extends State<_FormContent> {
                     color: Colors.grey[400],
                   ),
                 ),
-                Text('Vous n\'avez pas de compte ?'),
+                Text('Vous avez déjà un compte ?'),
                 Expanded(
                   child:  Divider(
                     thickness: 0.5,
@@ -245,7 +221,7 @@ class __FormContentState extends State<_FormContent> {
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
-                    'Créer un compte',
+                    'Se connecter',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -253,7 +229,7 @@ class __FormContentState extends State<_FormContent> {
                   /// do something
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SignUpScreen()),
+                    MaterialPageRoute(builder: (context) => LoginScreen()),
                   );
                 },
               ),
