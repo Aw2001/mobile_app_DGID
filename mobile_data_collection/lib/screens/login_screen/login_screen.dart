@@ -24,7 +24,9 @@ class InitState extends State<LoginScreen> {
             child: topWidget(screenSize.width),
           ),
           Positioned(
-            top: isSmallScreen ? screenSize.height * 0.1 : screenSize.height * 0.2,
+            top: isSmallScreen
+                ? screenSize.height * 0.1
+                : screenSize.height * 0.2,
             left: 20, // 20 pixels depuis la gauche
             child: const Text(
               'Se connecter',
@@ -36,29 +38,31 @@ class InitState extends State<LoginScreen> {
             ),
           ),
           Positioned(
-            top: isSmallScreen ? screenSize.height * 0.4 : screenSize.height * 0.5, // Ajuste la position selon la taille de l'écran
+            top: isSmallScreen
+                ? screenSize.height * 0.4
+                : screenSize.height *
+                    0.5, // Ajuste la position selon la taille de l'écran
             left: 0,
             right: 0,
-            child: Center(    
-              child: isSmallScreen
-                ? const Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _FormContent(),
-                    ],
-                  )
-                : Container(
-                    padding: const EdgeInsets.all(32.0),
-                    constraints: const BoxConstraints(maxWidth: 800),
-                    child: const Row(
-                      children: [
-                        Expanded(
-                          child: Center(child: _FormContent()),
+            child: Center(
+                child: isSmallScreen
+                    ? const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _FormContent(),
+                        ],
+                      )
+                    : Container(
+                        padding: const EdgeInsets.all(32.0),
+                        constraints: const BoxConstraints(maxWidth: 800),
+                        child: const Row(
+                          children: [
+                            Expanded(
+                              child: Center(child: _FormContent()),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  )
-            ),
+                      )),
           )
         ],
       ),
@@ -109,17 +113,14 @@ class __FormContentState extends State<_FormContent> {
                 prefixIcon: Icon(Icons.email_outlined),
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Color(0xFF8c6023),
-                  )
-                ),
+                    borderSide: BorderSide(
+                  color: Color(0xFF8c6023),
+                )),
                 // Style du label lorsqu'il est en focus
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023), // Couleur du label en focus
                 ),
-
               ),
-              
             ),
             _gap(),
             TextFormField(
@@ -135,34 +136,33 @@ class __FormContentState extends State<_FormContent> {
               },
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
-                  labelText: 'Mot de passe',
-                  prefixIcon: const Icon(Icons.lock_outline_rounded),
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(_isPasswordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
-                  focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Color(0xFF8c6023),
-                    )
-                  ),
-                  // Style du label lorsqu'il est en focus
-                  floatingLabelStyle: const TextStyle(
-                    color: Color(0xFF8c6023), // Couleur du label en focus
-                  ),
+                labelText: 'Mot de passe',
+                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(_isPasswordVisible
+                      ? Icons.visibility_off
+                      : Icons.visibility),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
                 ),
+                focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(
+                  color: Color(0xFF8c6023),
+                )),
+                // Style du label lorsqu'il est en focus
+                floatingLabelStyle: const TextStyle(
+                  color: Color(0xFF8c6023), // Couleur du label en focus
+                ),
+              ),
             ),
-
             _gap(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.end, // Aligne le texte à droite
+              mainAxisAlignment:
+                  MainAxisAlignment.end, // Aligne le texte à droite
               children: [
                 GestureDetector(
                   onTap: () {
@@ -171,24 +171,23 @@ class __FormContentState extends State<_FormContent> {
                   child: const Text(
                     'Mot de passe oublié ?',
                     style: TextStyle(
-                      color: Color(0xFF8c6023), // Vous pouvez personnaliser la couleur
+                      color: Color(
+                          0xFF8c6023), // Vous pouvez personnaliser la couleur
                       decoration: TextDecoration.none, // Souligne le texte
                     ),
                   ),
                 ),
               ],
             ),
-
             _gap(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, 
+                  foregroundColor: Colors.white,
                   backgroundColor: Color(0xFFC3AD65),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)
-                  ),
+                      borderRadius: BorderRadius.circular(4)),
                 ),
                 child: const Padding(
                   padding: EdgeInsets.all(10.0),
@@ -200,10 +199,10 @@ class __FormContentState extends State<_FormContent> {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     /// do something
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NavBarScreen()),
-                  );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => NavBarScreen()),
+                    );
                   }
                 },
               ),
@@ -212,31 +211,29 @@ class __FormContentState extends State<_FormContent> {
             Row(
               children: [
                 Expanded(
-                  child:  Divider(
+                  child: Divider(
                     thickness: 0.5,
                     color: Colors.grey[400],
                   ),
                 ),
                 Text('Vous n\'avez pas de compte ?'),
                 Expanded(
-                  child:  Divider(
+                  child: Divider(
                     thickness: 0.5,
                     color: Colors.grey[400],
                   ),
                 ),
               ],
             ),
-
             const SizedBox(height: 40),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Color(0xFFC3AD65), 
+                  foregroundColor: Color(0xFFC3AD65),
                   backgroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)
-                  ),
+                      borderRadius: BorderRadius.circular(4)),
                   side: const BorderSide(
                     color: Color(0xFFc3AD65),
                     width: 2,

@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'dart:math';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'map_screen.dart';
 
 class DropdownsWidget extends StatefulWidget {
-  const DropdownsWidget({super.key});
+  const DropdownsWidget({super.key, required this.mapScreenKey});
+  final GlobalKey<MapScreenState> mapScreenKey;
 
   @override
   _DropdownsWidgetState createState() => _DropdownsWidgetState();
@@ -15,73 +20,146 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
   String? selectedCommuneId;
   String? selectedSectionId;
   String? selectedParcelId;
+  String selectedCommuneName = '';
+  String selectedSectionNum = '';
+  String selectedNicadParcel = '';
+  String selectedRegionName = '';
+  String selectedDepartementName = '';
 
   List<Map<String, String>> regions = [];
   List<Map<String, String>> departments = [];
   List<Map<String, String>> communes = [];
-  List<String> sections = [];
+  List<Map<String, String>> sections = [];
   List<Map<String, String>> parcels = [];
+  List<List<LatLng>> polygonPoints = []; // Liste des points pour le polygone
 
   @override
   void initState() {
     super.initState();
-    fetchRegions();  // Charger les régions au démarrage
+    fetchRegions(); // Charger les régions au démarrage
   }
 
   // Fonction pour récupérer les régions depuis l'API
   Future<void> fetchRegions() async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8081/api/regions/all'));
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Atouslesregions&maxFeatures=50&outputFormat=application%2Fjson'));
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body);
+
       setState(() {
-        regions = data.map<Map<String, String>>((region) => {
-          'id': region['id'].toString(),
-          'name': region['reg'].toString(),
+        regions = (data['features'] as List<dynamic>)
+            .map<Map<String, String>>((feature) {
+          final regionProperties = feature['properties'];
+          return {
+            'id': feature['id'].toString(),
+            'name': regionProperties['nom'].toString(),
+          };
         }).toList();
       });
+    } else {
+      throw Exception('Failed to load regions');
     }
   }
 
   // Fonction pour récupérer les départements d'une région
   Future<void> fetchDepartments(String regionId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8081/api/departements/region/$regionId'));
+    // Supprime le préfixe "touslesregions." pour ne garder que l'identifiant numérique
+    final cleanedRegionId =
+        regionId.replaceAll(RegExp(r'^touslesregions\.'), '');
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Atouslesdepartements&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=region_id=$cleanedRegionId'));
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      setState(() {
-        departments = data.map<Map<String, String>>((dep) => {
-          'id': dep['id'].toString(),
-          'name': dep['nomDepart']
-        }).toList();
-      });
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        setState(() {
+          departments = (data['features'] as List<dynamic>)
+              .map<Map<String, String>>((feature) {
+            final departementProperties = feature['properties'];
+            return {
+              'id': feature['id'].toString(),
+              'name': departementProperties['nom']
+                  .toString() // 'nom' pour le nom du département
+            };
+          }).toList();
+        });
+      } else {
+        print(
+            'Erreur : La réponse n\'est pas au format JSON. Voici la réponse :');
+        print(
+            response.body); // Affiche le contenu de la réponse pour inspection
+      }
+    } else {
+      throw Exception('Failed to load departments');
     }
   }
 
   // Fonction pour récupérer les communes d'un département
-  Future<void> fetchCommunes(String departmentId) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8081/api/communes/departement/$departmentId'));
+  Future<void> fetchCommunes(String departementId) async {
+    final cleanedDepartmentId =
+        departementId.replaceAll(RegExp(r'^touslesdepartements\.'), '');
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Acommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=departement_id=$cleanedDepartmentId'));
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      setState(() {
-        communes = data.map<Map<String, String>>((com) => {
-          'id': com['id'].toString(),
-          'name': com['nomCommun']
-        }).toList();
-      });
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
+        // Décode la réponse JSON
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        // Met à jour l'état avec les communes
+        setState(() {
+          communes = (data['features'] as List<dynamic>)
+              .map<Map<String, String>>((com) {
+            return {
+              'id': com['id'].toString(),
+              'name': com['properties']['nom_commun'].toString()
+            };
+          }).toList();
+        });
+      } else {
+        print(
+            'Erreur : La réponse n\'est pas au format JSON. Voici la réponse :');
+        print(
+            response.body); // Affiche le contenu de la réponse pour inspection
+      }
+    } else {
+      throw Exception('Failed to load communes: ${response.statusCode}');
     }
   }
 
   // Fonction pour récupérer les sections d'une commune
   Future<void> fetchSections(String communeName) async {
-    final response = await http.get(Uri.parse('http://10.0.2.2:8081/api/parcelles/$communeName/sections'));
+    String encodedNom = Uri.encodeComponent(communeName);
+    final response = await http.get(Uri.parse(
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Asection&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=commune=%27$encodedNom%27'));
+
     if (response.statusCode == 200) {
-      print('Response body: ${response.body}');
-      final List<dynamic> data = jsonDecode(response.body);
-      // Afficher la réponse pour déboguer
-      print('Sections data: $data');
-       setState(() {
-      // Les sections sont simplement des chaînes de caractères
-      sections = data.map<String>((sec) => sec.toString()).toList();
-    });
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
+        // Décode la réponse JSON
+        final Map<String, dynamic> data = jsonDecode(response.body);
+
+        setState(() {
+          // Récupérer le num_sect et commune_id
+          sections = (data['features'] as List<dynamic>)
+              .map<Map<String, String>>((section) {
+            final properties = section['properties'];
+
+            // Vérifier si properties n'est pas nul avant d'accéder aux valeurs
+            return {
+              'id': section['id'].toString(),
+              'name': properties['numero_sec']?.toString() ?? '',
+            };
+          }).toList();
+        });
+      } else {
+        print(
+            'Erreur : La réponse n\'est pas au format JSON. Voici la réponse :');
+        print(response.body);
+      }
+    } else {
+      print('Erreur lors de la requête : ${response.statusCode}');
     }
   }
 
@@ -89,143 +167,422 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
   Future<void> fetchParcels(String communeName, String sectionNumber) async {
     final encodedCommuneName = Uri.encodeComponent(communeName);
     final encodedSectionNumber = Uri.encodeComponent(sectionNumber);
-    final response = await http.get(Uri.parse('http://10.0.2.2:8081/api/parcelles/$encodedCommuneName/$encodedSectionNumber'));
+
+    final url = Uri.parse(
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Aparcelles&maxFeatures=50000&outputFormat=application%2Fjson&CQL_FILTER=nom_commun%20=%20%27$encodedCommuneName%27%20and%20num_sect=%27$encodedSectionNumber%27');
+
+    final response = await http.get(url);
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
+      final Map<String, dynamic> data = jsonDecode(response.body);
       setState(() {
-        parcels = data.map<Map<String, String>>((par) => {
-          'id': par['id'].toString(),
-          'name': par['numParc']
+        // Remplir la liste des parcelles en récupérant leurs 'id' et 'num_parc'
+        parcels = (data['features'] as List<dynamic>)
+            .map<Map<String, String>>((parcel) {
+          final properties = parcel['properties'];
+          return {
+            'id': parcel['id'].toString(),
+            'name': properties['nicad'].toString()
+          };
         }).toList();
       });
     }
   }
-String selectedCommuneName = '';
+
+  //Fonction pour recupérer les données GeoJSON de la région à partir du WFS
+  Future<void> fetchGeoJsonRegion(String nom) async {
+    String wfsUrl =
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Atouslesregions&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom=%27$nom%27';
+
+    try {
+      final response = await http.get(Uri.parse(wfsUrl));
+      if (response.statusCode == 200) {
+        final geoJson = jsonDecode(response.body);
+
+        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+        setState(() {
+          polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
+          print('mapScreenKey: $widget.mapScreenKey');
+          print(
+              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+          if (widget.mapScreenKey.currentState != null) {
+            widget.mapScreenKey.currentState!
+                .updatePolygonPoints(polygonPoints);
+          } else {
+            print('narrive pas à appeler update()');
+          }
+        });
+      } else {
+        print('Erreur de chargement des données WFS: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur: $e');
+    }
+  }
+
+  //Fonction pour recupérer les données GeoJSON du département à partir du WFS
+  Future<void> fetchGeoJsonDepartement(String nom) async {
+    String wfsUrl =
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Atouslesdepartements&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom=%27$nom%27';
+
+    try {
+      final response = await http.get(Uri.parse(wfsUrl));
+      if (response.statusCode == 200) {
+        final geoJson = jsonDecode(response.body);
+
+        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+        setState(() {
+          polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
+          print('mapScreenKey: $widget.mapScreenKey');
+          print(
+              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+          if (widget.mapScreenKey.currentState != null) {
+            widget.mapScreenKey.currentState!
+                .updatePolygonPoints(polygonPoints);
+          } else {
+            print('narrive pas à appeler update()');
+          }
+        });
+      } else {
+        print('Erreur de chargement des données WFS: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur: $e');
+    }
+  }
+
+  //Fonction pour recupérer les données GeoJSON de la commune à partir du WFS
+  Future<void> fetchGeoJsonCommune(String nom) async {
+    print(nom);
+    // Encodage du paramètre `nom` pour gérer les espaces et autres caractères spéciaux
+    String encodedNom = Uri.encodeComponent(nom);
+    print(encodedNom);
+    String wfsUrl =
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Acommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commun=%27$encodedNom%27';
+
+    try {
+      final response = await http.get(Uri.parse(wfsUrl));
+
+      if (response.statusCode == 200) {
+        final geoJson = jsonDecode(response.body);
+        print(geoJson);
+        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+        setState(() {
+          polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
+          print('mapScreenKey: $widget.mapScreenKey');
+          print(
+              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+          if (widget.mapScreenKey.currentState != null) {
+            widget.mapScreenKey.currentState!
+                .updatePolygonCommune(polygonPoints);
+          } else {
+            print('narrive pas à appeler update()');
+          }
+        });
+      } else {
+        print('Erreur de chargement des données WFS: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur: $e');
+    }
+  }
+
+  Future<void> fetchGeoJsonSection(String num) async {
+    print(num);
+
+    String wfsUrl =
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Asection&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=numero_sec=%27$num%27';
+
+    try {
+      final response = await http.get(Uri.parse(wfsUrl));
+
+      if (response.statusCode == 200) {
+        final geoJson = jsonDecode(response.body);
+        print(geoJson);
+        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+        setState(() {
+          polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
+          print('mapScreenKey: $widget.mapScreenKey');
+          print(
+              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+          if (widget.mapScreenKey.currentState != null) {
+            widget.mapScreenKey.currentState!
+                .updatePolygonSection(polygonPoints);
+          } else {
+            print('narrive pas à appeler update()');
+          }
+        });
+      } else {
+        print('Erreur de chargement des données WFS: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur: $e');
+    }
+  }
+
+  // Fonction pour récupérer les données GeoJSON de la parcelle à partir du WFS
+  Future<void> fetchGeoJsonParcelle(String nicad) async {
+    String wfsUrl =
+        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Aparcelles&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nicad=%27$nicad%27';
+
+    try {
+      final response = await http.get(Uri.parse(wfsUrl));
+      if (response.statusCode == 200) {
+        final geoJson = jsonDecode(response.body);
+
+        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+        setState(() {
+          polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
+          print('mapScreenKey: $widget.mapScreenKey');
+          print(
+              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+          if (widget.mapScreenKey.currentState != null) {
+            widget.mapScreenKey.currentState!
+                .updatePolygonParcelle(polygonPoints);
+          } else {
+            print('narrive pas à appeler update()');
+          }
+        });
+      } else {
+        print('Erreur de chargement des données WFS: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erreur: $e');
+    }
+  }
+
+  List<List<LatLng>> extractPolygonPointsFromGeoJson(
+      Map<String, dynamic> geoJson) {
+    List<List<LatLng>> polygons = [];
+
+    // Vérifie si 'features' existe et est une liste
+    if (geoJson.containsKey('features') && geoJson['features'] is List) {
+      final features = geoJson['features'];
+
+      for (var feature in features) {
+        // Vérifie si 'geometry' existe dans chaque feature
+        if (feature.containsKey('geometry')) {
+          final geometry = feature['geometry'];
+
+          // Si la géométrie est un Polygone
+          if (geometry['type'] == 'Polygon') {
+            final coordinates = geometry['coordinates']; // Liste des anneaux
+            if (coordinates is List) {
+              for (var ring in coordinates) {
+                // Chaque anneau (contour du polygone)
+                List<LatLng> ringPoints = [];
+                if (ring is List) {
+                  for (var coord in ring) {
+                    if (coord is List && coord.length >= 2) {
+                      // Ajouter les coordonnées (latitude, longitude), ignorer la 3e dimension
+                      ringPoints.add(
+                          LatLng(coord[1], coord[0])); // (latitude, longitude)
+                    }
+                  }
+                }
+                polygons.add(
+                    ringPoints); // Ajouter l'anneau comme un polygone distinct
+              }
+            }
+          }
+
+          // Si la géométrie est un MultiPolygon
+          else if (geometry['type'] == 'MultiPolygon') {
+            final multiPolygons = geometry['coordinates'];
+            if (multiPolygons is List) {
+              for (var polygon in multiPolygons) {
+                for (var ring in polygon) {
+                  // Pour chaque anneau dans le MultiPolygon
+                  List<LatLng> ringPoints = [];
+                  if (ring is List) {
+                    for (var coord in ring) {
+                      if (coord is List && coord.length >= 2) {
+                        // Ajouter les coordonnées (latitude, longitude), ignorer la 3e dimension
+                        ringPoints.add(LatLng(
+                            coord[1], coord[0])); // (latitude, longitude)
+                      }
+                    }
+                  }
+                  polygons.add(
+                      ringPoints); // Ajouter chaque anneau comme un polygone distinct
+                }
+              }
+            }
+          }
+        }
+      }
+    } else {
+      print('Aucune fonctionnalité trouvée dans le GeoJSON');
+    }
+
+    return polygons;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          _buildDropdown(
-            label: 'Sélectionnez une région',
-            value: selectedRegionId,
-            items: regions,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedRegionId = newValue;
-                selectedDepartmentId = null;
-                selectedCommuneId = null;
-                selectedSectionId = null;
-                selectedParcelId = null;
-                departments.clear();
-                communes.clear();
-                sections.clear();
-                parcels.clear();
-              });
-              if (newValue != null) {
-                fetchDepartments(newValue);  // Charger les départements de la région sélectionnée
-              }
-            },
-            isEnabled: regions.isNotEmpty, // Active si la liste des régions est non vide
-          ),
-          const SizedBox(height: 16),
-          _buildDropdown(
-            label: 'Sélectionnez un département',
-            value: selectedDepartmentId,
-            items: departments,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedDepartmentId = newValue;
-                selectedCommuneId = null;
-                selectedSectionId = null;
-                selectedParcelId = null;
-                communes.clear();
-                sections.clear();
-                parcels.clear();
-              });
-              if (newValue != null) {
-                fetchCommunes(newValue);  // Charger les communes du département sélectionné
-              }
-            },
-            isEnabled: departments.isNotEmpty, // Active seulement si la liste des départements est non vide
-          ),
-          const SizedBox(height: 16),
-          _buildDropdown(
-            label: 'Sélectionnez une commune',
-            value: selectedCommuneId,
-            items: communes,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedCommuneId = newValue;
-                selectedSectionId = null;
-                selectedParcelId = null;
-                sections.clear();
-                parcels.clear();
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            _buildDropdown(
+              label: 'Région',
+              value: selectedRegionId,
+              items: regions,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedRegionId = newValue;
+                  selectedDepartmentId = null;
+                  selectedCommuneId = null;
+                  selectedSectionId = null;
+                  selectedParcelId = null;
+                  departments.clear();
+                  communes.clear();
+                  sections.clear();
+                  parcels.clear();
+                });
+                if (newValue != null) {
+                  final selectedRegion = regions.firstWhere(
+                    (region) => region['id'] == newValue,
+                    orElse: () => <String,
+                        String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                  );
 
+                  if (selectedRegion.isNotEmpty) {
+                    selectedRegionName = selectedRegion['name'] ?? '';
+                    fetchGeoJsonRegion(selectedRegionName);
+                    fetchDepartments(newValue);
+                  }
+                }
+              },
+              isEnabled: regions
+                  .isNotEmpty, // Active si la liste des régions est non vide
+            ),
+            const SizedBox(height: 16),
+            _buildDropdown(
+              label: 'Département',
+              value: selectedDepartmentId,
+              items: departments,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedDepartmentId = newValue;
+                  selectedCommuneId = null;
+                  selectedSectionId = null;
+                  selectedParcelId = null;
+                  communes.clear();
+                  sections.clear();
+                  parcels.clear();
+                });
+                if (newValue != null) {
+                  final selectedDepartement = departments.firstWhere(
+                    (departement) => departement['id'] == newValue,
+                    orElse: () => <String,
+                        String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                  );
+
+                  if (selectedDepartement.isNotEmpty) {
+                    selectedDepartementName = selectedDepartement['name'] ?? '';
+                    fetchGeoJsonDepartement(selectedDepartementName);
+                    fetchCommunes(
+                        newValue); // Charger les communes du département sélectionné
+                  }
+                }
+              },
+              isEnabled: departments
+                  .isNotEmpty, // Active seulement si la liste des départements est non vide
+            ),
+            const SizedBox(height: 16),
+            _buildDropdown(
+              label: 'Commune',
+              value: selectedCommuneId,
+              items: communes,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedCommuneId = newValue;
+                  selectedSectionId = null;
+                  selectedParcelId = null;
+                  sections.clear();
+                  parcels.clear();
+                });
                 // Met à jour le nom de la commune sélectionnée
                 if (newValue != null) {
-                  // Débogage : afficher le nouvel ID de la commune
-                  print("Nouvelle commune ID: $newValue");
-
                   final selectedCommune = communes.firstWhere(
                     (commune) => commune['id'] == newValue,
-                    orElse: () => <String, String>{},  // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                    orElse: () => <String,
+                        String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
                   );
 
                   if (selectedCommune.isNotEmpty) {
-                    print("Selected Commune Data: $selectedCommune");
-                    selectedCommuneName = selectedCommune['name']?? '';
-                    print("Nom de la commune sélectionnée: $selectedCommuneName");
+                    selectedCommuneName = selectedCommune['name'] ?? '';
+                    fetchGeoJsonCommune(selectedCommuneName);
+                    fetchSections(selectedCommuneName);
                   } else {
                     print("Commune non trouvée pour l'ID: $newValue");
                   }
-
                 }
-              });
+              },
+              isEnabled: communes
+                  .isNotEmpty, // Active si la liste des communes est non vide
+            ),
+            const SizedBox(height: 16),
+            _buildDropdown(
+              label: 'Section',
+              value: selectedSectionId,
+              items:
+                  sections, // sections contient directement les numéros de section
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedSectionId = newValue;
+                  selectedParcelId = null;
+                  parcels.clear();
 
-              // Charger les sections de la commune sélectionnée
-              if (selectedCommuneName.isNotEmpty) {
-                fetchSections(selectedCommuneName); // Utiliser le nom de la commune
-              }
+                  if (newValue != null) {
+                    final selectedSection = sections.firstWhere(
+                      (section) => section['id'] == newValue,
+                      orElse: () => <String,
+                          String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                    );
 
-            },
-            isEnabled: communes.isNotEmpty, // Active si la liste des communes est non vide
-          ),
-          const SizedBox(height: 16),
-          _buildDropdown(
-            label: 'Sélectionnez une section',
-            value: selectedSectionId,
-            stringItems: sections, // sections contient directement les numéros de section
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedSectionId = newValue;
-                selectedParcelId = null;
-                parcels.clear();
+                    if (selectedSection.isNotEmpty) {
+                      selectedSectionNum = selectedSection['name'] ?? '';
+                      fetchGeoJsonSection(selectedSectionNum);
+                      fetchParcels(selectedCommuneName, selectedSectionNum);
+                    }
+                  }
+                });
+              },
+              isEnabled: sections
+                  .isNotEmpty, // Active si la liste des sections est non vide
+            ),
+            const SizedBox(height: 16),
+            _buildDropdown(
+              label: 'Parcelle',
+              value: selectedParcelId,
+              items: parcels,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedParcelId = newValue;
+                  if (newValue != null) {
+                    final selectedParcelle = parcels.firstWhere(
+                      (parcelle) => parcelle['id'] == newValue,
+                      orElse: () => <String,
+                          String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                    );
 
-                if (newValue != null) {
-                  // Appeler fetchParcels avec le nom de la commune et le numéro de section
-                  fetchParcels(selectedCommuneName, newValue); // newValue est le numéro de section
-                }
-              });
-            },
-            isEnabled: sections.isNotEmpty, // Active si la liste des sections est non vide
-          ),
-          const SizedBox(height: 16),
-          _buildDropdown(
-            label: 'Sélectionnez une parcelle',
-            value: selectedParcelId,
-            items: parcels,
-            onChanged: (String? newValue) {
-              setState(() {
-                selectedParcelId = newValue;
-              });
-            },
-            isEnabled: parcels.isNotEmpty, // Active si la liste des parcelles est non vide
-          ),
-        ],
+                    if (selectedParcelle.isNotEmpty) {
+                      selectedNicadParcel = selectedParcelle['name'] ?? '';
+                      //appel fonction
+                      fetchGeoJsonParcelle(selectedNicadParcel);
+                    }
+                  }
+                });
+              },
+              isEnabled: parcels
+                  .isNotEmpty, // Active si la liste des parcelles est non vide
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -234,45 +591,55 @@ String selectedCommuneName = '';
   Widget _buildDropdown({
     required String label,
     required String? value,
-    List<Map<String, String>> items = const[],
+    List<Map<String, String>> items = const [],
     List<String> stringItems = const [],
     required ValueChanged<String?> onChanged,
-    required bool isEnabled, // Nouveau paramètre pour indiquer si le Dropdown est activé ou non
+    required bool
+        isEnabled, // Nouveau paramètre pour indiquer si le Dropdown est activé ou non
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
           hintText: label,
-          fillColor: isEnabled ? Colors.white : Colors.grey[300], // Grise si désactivé
+          fillColor: isEnabled
+              ? Color.fromARGB(255, 255, 254, 251)
+              : Colors.grey[300], // Grise si désactivé
           filled: true,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: Colors.grey)),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: isEnabled ? Colors.grey : Colors.grey[400]!, width: 1.5),
+            borderSide: BorderSide(
+                color: isEnabled ? Color(0xFFC3AD65) : Colors.grey[300]!),
             borderRadius: BorderRadius.circular(8.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.grey, width: 1.5),
+            borderSide: BorderSide(
+              color: Color(0xFFC3AD65),
+            ),
             borderRadius: BorderRadius.circular(8.0),
           ),
         ),
         value: value,
         items: isEnabled
-          ? (items.isNotEmpty 
-              ? items.map((item) => DropdownMenuItem<String>(
-                  value: item['id'],
-                  child: Text(item['name']!),
-                )).toList()
-              : stringItems.map((item) => DropdownMenuItem<String>(
-                  value: item,
-                  child: Text(item),
-                )).toList())
-          : [],
-        
-        onChanged: isEnabled ? onChanged : null, // Désactive si isEnabled est faux
-        
+            ? (items.isNotEmpty
+                ? items
+                    .map((item) => DropdownMenuItem<String>(
+                          value: item['id'],
+                          child: Text(item['name']!),
+                        ))
+                    .toList()
+                : stringItems
+                    .map((item) => DropdownMenuItem<String>(
+                          value: item,
+                          child: Text(item),
+                        ))
+                    .toList())
+            : [],
+
+        onChanged:
+            isEnabled ? onChanged : null, // Désactive si isEnabled est faux
       ),
     );
   }
