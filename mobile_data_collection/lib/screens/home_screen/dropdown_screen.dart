@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
@@ -11,10 +9,10 @@ class DropdownsWidget extends StatefulWidget {
   final GlobalKey<MapScreenState> mapScreenKey;
 
   @override
-  _DropdownsWidgetState createState() => _DropdownsWidgetState();
+  DropdownsWidgetState createState() => DropdownsWidgetState();
 }
 
-class _DropdownsWidgetState extends State<DropdownsWidget> {
+class DropdownsWidgetState extends State<DropdownsWidget> {
   String? selectedRegionId;
   String? selectedDepartmentId;
   String? selectedCommuneId;
@@ -31,7 +29,7 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
   List<Map<String, String>> communes = [];
   List<Map<String, String>> sections = [];
   List<Map<String, String>> parcels = [];
-  List<List<LatLng>> polygonPoints = []; // Liste des points pour le polygone
+  List<List<LatLng>> polygonPoints = [];
 
   @override
   void initState() {
@@ -63,7 +61,6 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
 
   // Fonction pour récupérer les départements d'une région
   Future<void> fetchDepartments(String regionId) async {
-    // Supprime le préfixe "touslesregions." pour ne garder que l'identifiant numérique
     final cleanedRegionId =
         regionId.replaceAll(RegExp(r'^touslesregions\.'), '');
     final response = await http.get(Uri.parse(
@@ -79,16 +76,14 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
             final departementProperties = feature['properties'];
             return {
               'id': feature['id'].toString(),
-              'name': departementProperties['nom']
-                  .toString() // 'nom' pour le nom du département
+              'name': departementProperties['nom'].toString()
             };
           }).toList();
         });
       } else {
         print(
             'Erreur : La réponse n\'est pas au format JSON. Voici la réponse :');
-        print(
-            response.body); // Affiche le contenu de la réponse pour inspection
+        print(response.body);
       }
     } else {
       throw Exception('Failed to load departments');
@@ -104,10 +99,8 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
     if (response.statusCode == 200) {
       if (response.headers['content-type']?.contains('application/json') ??
           false) {
-        // Décode la réponse JSON
         final Map<String, dynamic> data = jsonDecode(response.body);
 
-        // Met à jour l'état avec les communes
         setState(() {
           communes = (data['features'] as List<dynamic>)
               .map<Map<String, String>>((com) {
@@ -120,8 +113,7 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
       } else {
         print(
             'Erreur : La réponse n\'est pas au format JSON. Voici la réponse :');
-        print(
-            response.body); // Affiche le contenu de la réponse pour inspection
+        print(response.body);
       }
     } else {
       throw Exception('Failed to load communes: ${response.statusCode}');
@@ -137,16 +129,13 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
     if (response.statusCode == 200) {
       if (response.headers['content-type']?.contains('application/json') ??
           false) {
-        // Décode la réponse JSON
         final Map<String, dynamic> data = jsonDecode(response.body);
 
         setState(() {
-          // Récupérer le num_sect et commune_id
           sections = (data['features'] as List<dynamic>)
               .map<Map<String, String>>((section) {
             final properties = section['properties'];
 
-            // Vérifier si properties n'est pas nul avant d'accéder aux valeurs
             return {
               'id': section['id'].toString(),
               'name': properties['numero_sec']?.toString() ?? '',
@@ -175,7 +164,6 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
       setState(() {
-        // Remplir la liste des parcelles en récupérant leurs 'id' et 'num_parc'
         parcels = (data['features'] as List<dynamic>)
             .map<Map<String, String>>((parcel) {
           final properties = parcel['properties'];
@@ -198,12 +186,9 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
       if (response.statusCode == 200) {
         final geoJson = jsonDecode(response.body);
 
-        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
         setState(() {
           polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
-          print('mapScreenKey: $widget.mapScreenKey');
-          print(
-              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+
           if (widget.mapScreenKey.currentState != null) {
             widget.mapScreenKey.currentState!
                 .updatePolygonPoints(polygonPoints);
@@ -229,12 +214,9 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
       if (response.statusCode == 200) {
         final geoJson = jsonDecode(response.body);
 
-        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
         setState(() {
           polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
-          print('mapScreenKey: $widget.mapScreenKey');
-          print(
-              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+
           if (widget.mapScreenKey.currentState != null) {
             widget.mapScreenKey.currentState!
                 .updatePolygonPoints(polygonPoints);
@@ -252,10 +234,8 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
 
   //Fonction pour recupérer les données GeoJSON de la commune à partir du WFS
   Future<void> fetchGeoJsonCommune(String nom) async {
-    print(nom);
-    // Encodage du paramètre `nom` pour gérer les espaces et autres caractères spéciaux
     String encodedNom = Uri.encodeComponent(nom);
-    print(encodedNom);
+
     String wfsUrl =
         'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Acommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commun=%27$encodedNom%27';
 
@@ -264,13 +244,10 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
 
       if (response.statusCode == 200) {
         final geoJson = jsonDecode(response.body);
-        print(geoJson);
-        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+
         setState(() {
           polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
-          print('mapScreenKey: $widget.mapScreenKey');
-          print(
-              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+
           if (widget.mapScreenKey.currentState != null) {
             widget.mapScreenKey.currentState!
                 .updatePolygonCommune(polygonPoints);
@@ -287,8 +264,6 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
   }
 
   Future<void> fetchGeoJsonSection(String num) async {
-    print(num);
-
     String wfsUrl =
         'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3Asection&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=numero_sec=%27$num%27';
 
@@ -297,13 +272,10 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
 
       if (response.statusCode == 200) {
         final geoJson = jsonDecode(response.body);
-        print(geoJson);
-        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
+
         setState(() {
           polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
-          print('mapScreenKey: $widget.mapScreenKey');
-          print(
-              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+
           if (widget.mapScreenKey.currentState != null) {
             widget.mapScreenKey.currentState!
                 .updatePolygonSection(polygonPoints);
@@ -329,12 +301,9 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
       if (response.statusCode == 200) {
         final geoJson = jsonDecode(response.body);
 
-        // Extraire les coordonnées des polygones ou points à partir du GeoJSON
         setState(() {
           polygonPoints = extractPolygonPointsFromGeoJson(geoJson);
-          print('mapScreenKey: $widget.mapScreenKey');
-          print(
-              'mapScreenKey.currentState: ${widget.mapScreenKey.currentState}');
+
           if (widget.mapScreenKey.currentState != null) {
             widget.mapScreenKey.currentState!
                 .updatePolygonParcelle(polygonPoints);
@@ -354,56 +323,42 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
       Map<String, dynamic> geoJson) {
     List<List<LatLng>> polygons = [];
 
-    // Vérifie si 'features' existe et est une liste
     if (geoJson.containsKey('features') && geoJson['features'] is List) {
       final features = geoJson['features'];
 
       for (var feature in features) {
-        // Vérifie si 'geometry' existe dans chaque feature
         if (feature.containsKey('geometry')) {
           final geometry = feature['geometry'];
 
-          // Si la géométrie est un Polygone
           if (geometry['type'] == 'Polygon') {
-            final coordinates = geometry['coordinates']; // Liste des anneaux
+            final coordinates = geometry['coordinates'];
             if (coordinates is List) {
               for (var ring in coordinates) {
-                // Chaque anneau (contour du polygone)
                 List<LatLng> ringPoints = [];
                 if (ring is List) {
                   for (var coord in ring) {
                     if (coord is List && coord.length >= 2) {
-                      // Ajouter les coordonnées (latitude, longitude), ignorer la 3e dimension
-                      ringPoints.add(
-                          LatLng(coord[1], coord[0])); // (latitude, longitude)
+                      ringPoints.add(LatLng(coord[1], coord[0]));
                     }
                   }
                 }
-                polygons.add(
-                    ringPoints); // Ajouter l'anneau comme un polygone distinct
+                polygons.add(ringPoints);
               }
             }
-          }
-
-          // Si la géométrie est un MultiPolygon
-          else if (geometry['type'] == 'MultiPolygon') {
+          } else if (geometry['type'] == 'MultiPolygon') {
             final multiPolygons = geometry['coordinates'];
             if (multiPolygons is List) {
               for (var polygon in multiPolygons) {
                 for (var ring in polygon) {
-                  // Pour chaque anneau dans le MultiPolygon
                   List<LatLng> ringPoints = [];
                   if (ring is List) {
                     for (var coord in ring) {
                       if (coord is List && coord.length >= 2) {
-                        // Ajouter les coordonnées (latitude, longitude), ignorer la 3e dimension
-                        ringPoints.add(LatLng(
-                            coord[1], coord[0])); // (latitude, longitude)
+                        ringPoints.add(LatLng(coord[1], coord[0]));
                       }
                     }
                   }
-                  polygons.add(
-                      ringPoints); // Ajouter chaque anneau comme un polygone distinct
+                  polygons.add(ringPoints);
                 }
               }
             }
@@ -445,8 +400,7 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                 if (newValue != null) {
                   final selectedRegion = regions.firstWhere(
                     (region) => region['id'] == newValue,
-                    orElse: () => <String,
-                        String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                    orElse: () => <String, String>{},
                   );
 
                   if (selectedRegion.isNotEmpty) {
@@ -484,13 +438,11 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                   if (selectedDepartement.isNotEmpty) {
                     selectedDepartementName = selectedDepartement['name'] ?? '';
                     fetchGeoJsonDepartement(selectedDepartementName);
-                    fetchCommunes(
-                        newValue); // Charger les communes du département sélectionné
+                    fetchCommunes(newValue);
                   }
                 }
               },
-              isEnabled: departments
-                  .isNotEmpty, // Active seulement si la liste des départements est non vide
+              isEnabled: departments.isNotEmpty,
             ),
             const SizedBox(height: 16),
             _buildDropdown(
@@ -505,12 +457,10 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                   sections.clear();
                   parcels.clear();
                 });
-                // Met à jour le nom de la commune sélectionnée
                 if (newValue != null) {
                   final selectedCommune = communes.firstWhere(
                     (commune) => commune['id'] == newValue,
-                    orElse: () => <String,
-                        String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                    orElse: () => <String, String>{},
                   );
 
                   if (selectedCommune.isNotEmpty) {
@@ -522,15 +472,13 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                   }
                 }
               },
-              isEnabled: communes
-                  .isNotEmpty, // Active si la liste des communes est non vide
+              isEnabled: communes.isNotEmpty,
             ),
             const SizedBox(height: 16),
             _buildDropdown(
               label: 'Section',
               value: selectedSectionId,
-              items:
-                  sections, // sections contient directement les numéros de section
+              items: sections,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedSectionId = newValue;
@@ -540,8 +488,7 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                   if (newValue != null) {
                     final selectedSection = sections.firstWhere(
                       (section) => section['id'] == newValue,
-                      orElse: () => <String,
-                          String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                      orElse: () => <String, String>{},
                     );
 
                     if (selectedSection.isNotEmpty) {
@@ -552,8 +499,7 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                   }
                 });
               },
-              isEnabled: sections
-                  .isNotEmpty, // Active si la liste des sections est non vide
+              isEnabled: sections.isNotEmpty,
             ),
             const SizedBox(height: 16),
             _buildDropdown(
@@ -566,20 +512,18 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                   if (newValue != null) {
                     final selectedParcelle = parcels.firstWhere(
                       (parcelle) => parcelle['id'] == newValue,
-                      orElse: () => <String,
-                          String>{}, // Ajout d'une sécurité pour éviter une erreur si aucun élément n'est trouvé
+                      orElse: () => <String, String>{},
                     );
 
                     if (selectedParcelle.isNotEmpty) {
                       selectedNicadParcel = selectedParcelle['name'] ?? '';
-                      //appel fonction
+
                       fetchGeoJsonParcelle(selectedNicadParcel);
                     }
                   }
                 });
               },
-              isEnabled: parcels
-                  .isNotEmpty, // Active si la liste des parcelles est non vide
+              isEnabled: parcels.isNotEmpty,
             ),
           ],
         ),
@@ -587,24 +531,21 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
     );
   }
 
-  // Fonction générique pour créer un DropdownButton
   Widget _buildDropdown({
     required String label,
     required String? value,
     List<Map<String, String>> items = const [],
     List<String> stringItems = const [],
     required ValueChanged<String?> onChanged,
-    required bool
-        isEnabled, // Nouveau paramètre pour indiquer si le Dropdown est activé ou non
+    required bool isEnabled,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<String>(
         decoration: InputDecoration(
           hintText: label,
-          fillColor: isEnabled
-              ? Color.fromARGB(255, 255, 254, 251)
-              : Colors.grey[300], // Grise si désactivé
+          fillColor:
+              isEnabled ? Color.fromARGB(255, 255, 254, 251) : Colors.grey[300],
           filled: true,
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8.0),
@@ -637,9 +578,7 @@ class _DropdownsWidgetState extends State<DropdownsWidget> {
                         ))
                     .toList())
             : [],
-
-        onChanged:
-            isEnabled ? onChanged : null, // Désactive si isEnabled est faux
+        onChanged: isEnabled ? onChanged : null,
       ),
     );
   }

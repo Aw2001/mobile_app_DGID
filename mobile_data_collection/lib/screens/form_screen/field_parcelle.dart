@@ -4,14 +4,11 @@ class BuildFieldParcelle extends StatefulWidget {
   const BuildFieldParcelle({super.key});
 
   @override
-  _BuildFieldParcelleState createState() => _BuildFieldParcelleState();
+  BuildFieldParcelleState createState() => BuildFieldParcelleState();
 }
 
-class _BuildFieldParcelleState extends State<BuildFieldParcelle> {
-  // Initialiser les contrôleurs pour les champs de texte
+class BuildFieldParcelleState extends State<BuildFieldParcelle> {
   final Map<String, TextEditingController> _controllers = {};
-
-  // Valeurs des dropdowns
   final Map<String, String?> _selectedValues = {};
 
   // Configuration des champs de texte pour le Parcelle
@@ -65,7 +62,6 @@ class _BuildFieldParcelleState extends State<BuildFieldParcelle> {
         String fieldKey = field["key"]!;
         String? labelText = field["label"];
 
-        // Vérifier si le champ est un Dropdown
         if (dropdownItems.containsKey(fieldKey)) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -79,7 +75,6 @@ class _BuildFieldParcelleState extends State<BuildFieldParcelle> {
                 );
               }).toList(),
               onChanged: (String? newValue) {
-                // Mise à jour de la valeur sélectionnée
                 setState(() {
                   _selectedValues[fieldKey] = newValue;
                 });
@@ -101,7 +96,6 @@ class _BuildFieldParcelleState extends State<BuildFieldParcelle> {
           );
         }
 
-        // Vérifier si le champ est un champ de texte multi-lignes
         if (fieldKey == "commentaire") {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -129,7 +123,6 @@ class _BuildFieldParcelleState extends State<BuildFieldParcelle> {
           );
         }
 
-        // Sinon, c'est un champ de texte standard
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: TextFormField(

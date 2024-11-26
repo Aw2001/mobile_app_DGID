@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_data_collection/screens/login_screen/login_screen.dart';
-import '../welcome_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
+  const SignUpScreen({super.key});
+
   @override
   State<StatefulWidget> createState() => InitState();
 }
@@ -18,15 +19,10 @@ class InitState extends State<SignUpScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: -160,
-            left: -30,
-            child: topWidget(screenSize.width),
-          ),
-          Positioned(
             top: isSmallScreen
                 ? screenSize.height * 0.1
                 : screenSize.height * 0.2,
-            left: 20, // 20 pixels depuis la gauche
+            left: 20,
             child: const Text(
               'Créer un compte',
               style: TextStyle(
@@ -39,8 +35,7 @@ class InitState extends State<SignUpScreen> {
           Positioned(
             top: isSmallScreen
                 ? screenSize.height * 0.4
-                : screenSize.height *
-                    0.5, // Ajuste la position selon la taille de l'écran
+                : screenSize.height * 0.5,
             left: 0,
             right: 0,
             child: Center(
@@ -78,7 +73,6 @@ class _FormContent extends StatefulWidget {
 
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
-  bool _rememberMe = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -94,19 +88,19 @@ class __FormContentState extends State<_FormContent> {
           children: [
             TextFormField(
               validator: (value) {
-                // add email validation
                 if (value == null || value.isEmpty) {
                   return 'Ce champ ne peut pas être vide';
-                }
+                } else {
+                  bool emailValid = RegExp(
+                          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      .hasMatch(value);
 
-                bool emailValid = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                    .hasMatch(value);
-                if (!emailValid) {
-                  return 'Veuillez saisir une adresse email valide';
+                  if (!emailValid) {
+                    return 'Veuillez saisir une adresse email valide';
+                  } else {
+                    return null;
+                  }
                 }
-
-                return null;
               },
               decoration: const InputDecoration(
                 labelText: 'Adresse Email',
@@ -116,7 +110,6 @@ class __FormContentState extends State<_FormContent> {
                     borderSide: BorderSide(
                   color: Color(0xFF8c6023),
                 )),
-                // Style du label lorsqu'il est en focus
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023), // Couleur du label en focus
                 ),
@@ -127,12 +120,11 @@ class __FormContentState extends State<_FormContent> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Ce champ ne peut pas être vide';
-                }
-
-                if (value.length < 6) {
+                } else if (value.length < 6) {
                   return 'Le mot de passe doit au moins contenir 6 caractères';
+                } else {
+                  return null;
                 }
-                return null;
               },
               obscureText: !_isPasswordVisible,
               decoration: InputDecoration(
@@ -153,9 +145,8 @@ class __FormContentState extends State<_FormContent> {
                     borderSide: BorderSide(
                   color: Color(0xFF8c6023),
                 )),
-                // Style du label lorsqu'il est en focus
                 floatingLabelStyle: const TextStyle(
-                  color: Color(0xFF8c6023), // Couleur du label en focus
+                  color: Color(0xFF8c6023),
                 ),
               ),
             ),

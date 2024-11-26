@@ -45,9 +45,8 @@ class MultiStepScreenState extends State<MultiStepScreen> {
       body: Theme(
         data: Theme.of(context).copyWith(
           colorScheme: ColorScheme.light(
-            primary:
-                Color(0xFFC3AD65), // Couleur pour tous les états des étapes
-            onPrimary: Colors.white, // Couleur du texte dans les icônes
+            primary: Color(0xFFC3AD65),
+            onPrimary: Colors.white,
           ),
         ),
         child: StepList(

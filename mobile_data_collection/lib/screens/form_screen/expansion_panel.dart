@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
-import 'fieldParcelle.dart';
-
-/// Flutter code sample for [ExpansionPanelList].
+import 'field_parcelle.dart';
 
 class ExpansionPanelListExampleApp extends StatelessWidget {
   const ExpansionPanelListExampleApp({super.key});
@@ -17,7 +15,6 @@ class ExpansionPanelListExampleApp extends StatelessWidget {
   }
 }
 
-// stores ExpansionPanel state information
 class Item {
   Item({
     required this.headerValue,
@@ -75,9 +72,8 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExample> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                BuildFieldParcelle(), // Affiche les champs de texte
-                const SizedBox(
-                    height: 10), // Espacement entre les champs et le bouton
+                BuildFieldParcelle(),
+                const SizedBox(height: 10),
                 ListTile(
                   trailing: const Icon(Icons.delete),
                   onTap: () {

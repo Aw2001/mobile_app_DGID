@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'login_screen/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -23,14 +22,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) => LoginScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          // Appliquer une animation de fondu en utilisant FadeTransition
           return FadeTransition(
             opacity: animation,
             child: child,
           );
         },
-        transitionDuration:
-            const Duration(milliseconds: 750), // Durée de l'animation
+        transitionDuration: const Duration(milliseconds: 750),
       ),
     );
   }
@@ -48,12 +45,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: -160,
-            left: -30,
-            child: topWidget(screenSize.width),
-          ),
-          Positioned(
-            bottom: 250,
+            bottom: 0.3 * screenSize.height,
             left: 0,
             right: 0,
             child: Column(
@@ -76,22 +68,4 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
     );
   }
-}
-
-//définit en dehors de la classe pour pouvoir être utilisé dans login_screen
-Widget topWidget(double screenWidth) {
-  return Transform.rotate(
-    angle: -35 * math.pi / 180,
-    child: Container(
-      width: 1.2 * screenWidth,
-      height: 1 * screenWidth,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(150),
-          gradient: const LinearGradient(
-            begin: Alignment(-0.2, -0.8),
-            end: Alignment.bottomCenter,
-            colors: [Color.fromARGB(255, 246, 236, 206), Color(0xFFC3AD65)],
-          )),
-    ),
-  );
 }

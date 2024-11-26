@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'expansion_panel_proprietaire.dart';
 import 'expansion_panel.dart';
 import 'expansion_panel_bien.dart';
 
@@ -7,23 +8,33 @@ class StepList extends StatefulWidget {
   final VoidCallback onStepContinue;
   final VoidCallback onStepCancel;
 
-  StepList({
+  const StepList({
+    super.key,
     required this.activeStepIndex,
     required this.onStepContinue,
     required this.onStepCancel,
   });
 
   @override
-  _StepListState createState() => _StepListState();
+  StepListState createState() => StepListState();
 }
 
-class _StepListState extends State<StepList> {
-  int nbItems = 1;
+class StepListState extends State<StepList> {
+  int nbItemsForBien = 1;
+  int nbItemsForProprietaire = 1;
 
-  void decrementNbItems() {
+  void decrementNbItemsForBien() {
     setState(() {
-      if (nbItems > 0) {
-        nbItems--; // Réduire nbItems seulement si > 0
+      if (nbItemsForBien > 0) {
+        nbItemsForBien--; // Réduire nbItems seulement si > 0
+      }
+    });
+  }
+
+  void decrementNbItemsForProprietaire() {
+    setState(() {
+      if (nbItemsForProprietaire > 0) {
+        nbItemsForProprietaire--; // Réduire nbItems seulement si > 0
       }
     });
   }
@@ -57,24 +68,22 @@ class _StepListState extends State<StepList> {
           child: Column(
             children: [
               ExpansionPanelListExampleBien(
-                  nbItems: nbItems, onDelete: decrementNbItems),
-              const SizedBox(height: 16.0), // Espacement entre les élément
+                  nbItems: nbItemsForBien, onDelete: decrementNbItemsForBien),
+              const SizedBox(height: 16.0),
               Align(
-                alignment: Alignment.centerRight, // Aligne le bouton à droite
+                alignment: Alignment.centerRight,
                 child: FloatingActionButton.extended(
                   onPressed: () {
-                    // Action pour ajouter un panel
                     setState(() {
-                      nbItems++;
+                      nbItemsForBien++;
                     });
                   },
-                  backgroundColor: Color.fromARGB(
-                      255, 148, 92, 34), // Couleur de fond du bouton
+                  backgroundColor: Color.fromARGB(255, 148, 92, 34),
                   label: const Text(
                     "Ajouter un bien",
-                    style: TextStyle(color: Colors.white), // Couleur du texte
+                    style: TextStyle(color: Colors.white),
                   ),
-                  icon: Icon(Icons.add, color: Colors.white), // Icône du bouton
+                  icon: Icon(Icons.add, color: Colors.white),
                 ),
               ),
             ],
@@ -88,14 +97,36 @@ class _StepListState extends State<StepList> {
       Step(
         title: const Text('Proprietaire'),
         content: SingleChildScrollView(
-          child: ExpansionPanelListExample(),
+          child: Column(
+            children: [
+              ExpansionPanelListExampleProprietaire(
+                  nbItems: nbItemsForProprietaire,
+                  onDelete: decrementNbItemsForProprietaire),
+              const SizedBox(height: 16.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    setState(() {
+                      nbItemsForProprietaire++;
+                    });
+                  },
+                  backgroundColor: Color.fromARGB(255, 148, 92, 34),
+                  label: const Text(
+                    "Ajouter un proprietaire",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  icon: Icon(Icons.add, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
         ),
         isActive: widget.activeStepIndex >= 2,
         state: widget.activeStepIndex <= 2
             ? StepState.editing
             : StepState.complete,
       ),
-      // Ajoutez d'autres étapes ici si nécessaire
     ];
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -7,13 +6,11 @@ class BuildFieldBien extends StatefulWidget {
   const BuildFieldBien({super.key});
 
   @override
-  _BuildFieldBienState createState() => _BuildFieldBienState();
+  BuildFieldBienState createState() => BuildFieldBienState();
 }
 
-class _BuildFieldBienState extends State<BuildFieldBien> {
-  // Initialiser les contrôleurs pour les champs de texte
+class BuildFieldBienState extends State<BuildFieldBien> {
   final Map<String, TextEditingController> _controllers = {};
-  // Controllers for dropdown values and selected options
   final Map<String, String?> _selectedDropdownValues = {};
   final Map<String, String?> _selectedRadioValues = {};
   bool isPaysagerSelected = false;
@@ -24,6 +21,8 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
   // Configuration of fields for Bien with dropdowns and radio buttons
   final List<Map<String, String>> _fieldsBien = [
     {"label": "Matricule", "key": "matricule"},
+    {"label": "Numéro titre foncier", "key": "numTitreFoncier"},
+    {"label": "Date d'acquisition", "key": "dateAcquisition"},
     {"label": "Numéro de porte", "key": "numeroPorte"},
     {"label": "Usage", "key": "usage"},
     {"label": "Numéro Lot", "key": "numeroLot"},
@@ -42,6 +41,11 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
     {"label": "Qualité portes et fenêtres", "key": "qualitePorteEtFenetre"},
     {"label": "Nombre de pièces", "key": "nbPieces"},
     {"label": "Nombre d'étages", "key": "nbEtage"},
+    {"label": "Numéro du compteur d'eau", "key": "nbCompteurEau"},
+    {
+      "label": "Numéro du compteur d'électricité",
+      "key": "nbCompteurElectricite"
+    },
     {"label": "Valeur locative annuelle", "key": "valeurLocativeAnnuelle"},
     {
       "label": "Valeur locative annuelle saisie",
@@ -127,7 +131,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
   void initState() {
     super.initState();
 
-    // Initialiser les contrôleurs et les états d'expansion
     for (var field in _fieldsBien) {
       if (field["key"] != null) {
         _controllers[field["key"]!] = TextEditingController();
@@ -136,15 +139,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
   }
 
   // Méthode pour choisir plusieurs images
-  Future<void> _pickImages() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile>? selectedImages = await picker.pickMultiImage();
-    if (selectedImages != null) {
-      setState(() {
-        _imageFiles = selectedImages;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,7 +147,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
         String fieldKey = field["key"]!;
         String? labelText = field["label"];
 
-        // Check if the field should be a dropdown
         if (dropdownItems.containsKey(fieldKey)) {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -169,7 +162,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
               onChanged: (String? newValue) {
                 setState(() {
                   _selectedDropdownValues[fieldKey] = newValue;
-                  // Réinitialiser la catégorie
                   if (fieldKey == "typeLot") {
                     _selectedDropdownValues["categorie"] = null;
                   }
@@ -191,6 +183,7 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
             ),
           );
         } else if (fieldKey == "matricule" ||
+            fieldKey == "numTitreFoncier" ||
             fieldKey == "numeroLot" ||
             fieldKey == "niveauLot" ||
             fieldKey == "numeroPorte" ||
@@ -199,7 +192,9 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
             fieldKey == "valeurLocativeAnnuelle" ||
             fieldKey == "valeurLocativeAnnuelleSaisie" ||
             fieldKey == "valeurLocativeMensuelle" ||
-            fieldKey == "valeurLocativeMensuelleSaisie") {
+            fieldKey == "valeurLocativeMensuelleSaisie" ||
+            fieldKey == "nbCompteurEau" ||
+            fieldKey == "nbCompteurElectricite") {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextFormField(
@@ -224,9 +219,46 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
               ),
             ),
           );
-        }
-        // Vérifier si le champ est un champ de texte multi-lignes
-        if (fieldKey == "commentaire") {
+        } else if (fieldKey == "dateAcquisition") {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: TextFormField(
+              controller: _controllers[fieldKey],
+              readOnly: true,
+              cursorColor: Color(0xFFC3AD65),
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Color.fromARGB(255, 255, 254, 251),
+                border: const OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  borderSide: BorderSide(color: Color(0xFFC3AD65)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                  borderSide: BorderSide(color: Colors.grey),
+                ),
+                labelText: labelText,
+                floatingLabelStyle: TextStyle(color: Color(0xFFC3AD65)),
+                labelStyle: TextStyle(color: Colors.grey),
+                suffixIcon: Icon(Icons.calendar_today, color: Colors.grey),
+              ),
+              onTap: () async {
+                DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                );
+                if (pickedDate != null) {
+                  String formattedDate =
+                      "${pickedDate.year}-${pickedDate.month}-${pickedDate.day}";
+                  _controllers[fieldKey]?.text = formattedDate;
+                }
+              },
+            ),
+          );
+        } else if (fieldKey == "commentaire") {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: TextFormField(
@@ -251,9 +283,7 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
               ),
             ),
           );
-        }
-        if (fieldKey == "photos") {
-          // Champ pour l'upload des images
+        } else if (fieldKey == "photos") {
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
             child: Column(
@@ -305,7 +335,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
                     ),
                   ],
                 ),
-                // Affichage des images sélectionnées
                 if (_imageFiles != null && _imageFiles!.isNotEmpty)
                   SizedBox(
                     height: 100,
@@ -329,7 +358,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
             ),
           );
         }
-        // If not a dropdown, use radio buttons (Yes/No)
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: Column(
@@ -349,7 +377,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
                       onChanged: (String? value) {
                         setState(() {
                           _selectedRadioValues[fieldKey] = value;
-                          // Activate options if "Présence d'aménagement paysager" is "Oui"
                           if (fieldKey == "amenagementPaysager") {
                             isPaysagerSelected = value == "Oui";
                             if (!isPaysagerSelected) {
@@ -363,7 +390,6 @@ class _BuildFieldBienState extends State<BuildFieldBien> {
                   );
                 }).toList(),
               ),
-              // Additional options for Paysager
               if (fieldKey == "amenagementPaysager" && isPaysagerSelected)
                 Column(
                   children: [

@@ -1,12 +1,11 @@
 import '../home_screen/map_screen.dart';
 import 'package:flutter/material.dart';
 import 'dropdown_screen.dart';
-import 'map_screen.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
 
-// ignore: must_be_immutable
 class NavBarScreen extends StatelessWidget {
   NavBarScreen({super.key});
+
   final GlobalKey<MapScreenState> mapScreenKey = GlobalKey<MapScreenState>();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -15,20 +14,19 @@ class NavBarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isLargeScreen = width > 800;
-    const Color customColor = kBackgroundColor; // Couleur personnalisée
+    const Color customColor = kBackgroundColor;
 
     return Theme(
       data: ThemeData.light().copyWith(
         colorScheme: ThemeData.light().colorScheme.copyWith(
-              primary:
-                  customColor, // Couleur personnalisée pour les éléments principaux
+              primary: customColor,
             ),
-        scaffoldBackgroundColor: customColor, // Couleur de fond de la page
+        scaffoldBackgroundColor: customColor,
       ),
       child: Scaffold(
           key: _scaffoldKey,
           appBar: AppBar(
-            backgroundColor: customColor, // Couleur personnalisée pour l'AppBar
+            backgroundColor: customColor,
             elevation: 0,
             titleSpacing: 0,
             leading: isLargeScreen
@@ -69,7 +67,6 @@ class NavBarScreen extends StatelessWidget {
             ],
           ),
           drawer: _drawer(),
-          //map
           body: MapScreen(key: mapScreenKey)),
     );
   }
@@ -96,12 +93,9 @@ class NavBarScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Appel du widget contenant les Dropdowns
           DropdownsWidget(mapScreenKey: mapScreenKey),
         ],
       ),
     );
   }
 }
-
-enum Menu { itemOne, itemTwo, itemThree }

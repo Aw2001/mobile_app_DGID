@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../welcome_screen.dart';
 import '../sign_up_screen/sign_up_screen.dart';
 import '../home_screen/navbar_screen.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   State<StatefulWidget> createState() => InitState();
 }
@@ -19,29 +20,24 @@ class InitState extends State<LoginScreen> {
       body: Stack(
         children: [
           Positioned(
-            top: -160,
-            left: -30,
-            child: topWidget(screenSize.width),
-          ),
-          Positioned(
             top: isSmallScreen
                 ? screenSize.height * 0.1
-                : screenSize.height * 0.2,
-            left: 20, // 20 pixels depuis la gauche
+                : screenSize.height * 0.15,
+            left: 20,
             child: const Text(
-              'Se connecter',
+              'Se Connecter',
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 35,
                 fontWeight: FontWeight.bold,
-                color: Colors.white,
+                color: Color(0xFF8c6023),
               ),
             ),
           ),
           Positioned(
             top: isSmallScreen
                 ? screenSize.height * 0.4
-                : screenSize.height *
-                    0.5, // Ajuste la position selon la taille de l'écran
+                : screenSize.height * 0.3,
             left: 0,
             right: 0,
             child: Center(
@@ -85,7 +81,7 @@ class __FormContentState extends State<_FormContent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 300),
+      constraints: const BoxConstraints(maxWidth: 400),
       child: Form(
         key: _formKey,
         child: Column(
@@ -94,7 +90,6 @@ class __FormContentState extends State<_FormContent> {
           children: [
             TextFormField(
               validator: (value) {
-                // add email validation
                 if (value == null || value.isEmpty) {
                   return 'Ce champ ne peut pas être vide';
                 }
@@ -116,7 +111,6 @@ class __FormContentState extends State<_FormContent> {
                     borderSide: BorderSide(
                   color: Color(0xFF8c6023),
                 )),
-                // Style du label lorsqu'il est en focus
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023), // Couleur du label en focus
                 ),
@@ -129,9 +123,6 @@ class __FormContentState extends State<_FormContent> {
                   return 'Ce champ ne peut pas être vide';
                 }
 
-                // if (value.length < 6) {
-                //   return 'Password must be at least 6 characters';
-                // }
                 return null;
               },
               obscureText: !_isPasswordVisible,
@@ -155,7 +146,7 @@ class __FormContentState extends State<_FormContent> {
                 )),
                 // Style du label lorsqu'il est en focus
                 floatingLabelStyle: const TextStyle(
-                  color: Color(0xFF8c6023), // Couleur du label en focus
+                  color: Color(0xFF8c6023),
                 ),
               ),
             ),
@@ -171,9 +162,8 @@ class __FormContentState extends State<_FormContent> {
                   child: const Text(
                     'Mot de passe oublié ?',
                     style: TextStyle(
-                      color: Color(
-                          0xFF8c6023), // Vous pouvez personnaliser la couleur
-                      decoration: TextDecoration.none, // Souligne le texte
+                      color: Color(0xFF8c6023),
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),
@@ -198,7 +188,6 @@ class __FormContentState extends State<_FormContent> {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    /// do something
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => NavBarScreen()),
@@ -247,7 +236,6 @@ class __FormContentState extends State<_FormContent> {
                   ),
                 ),
                 onPressed: () {
-                  /// do something
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => SignUpScreen()),

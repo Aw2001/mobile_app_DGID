@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
-import 'field_bien.dart';
+import 'field_proprietaire.dart';
 
-class ExpansionPanelListExampleBienApp extends StatelessWidget {
-  const ExpansionPanelListExampleBienApp({super.key});
+class ExpansionPanelListExampleProprietaireApp extends StatelessWidget {
+  const ExpansionPanelListExampleProprietaireApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: ExpansionPanelListExampleBien(
+        body: ExpansionPanelListExampleProprietaire(
             nbItems: 0,
             onDelete: () {
               print("un panneau a été supprimé");
@@ -32,27 +32,27 @@ class Item {
 List<Item> generateItems(int numberOfItems) {
   return List<Item>.generate(numberOfItems, (int index) {
     return Item(
-      headerValue: 'Informations sur le bien',
+      headerValue: 'Informations sur le proprietaire',
     );
   });
 }
 
-class ExpansionPanelListExampleBien extends StatefulWidget {
+class ExpansionPanelListExampleProprietaire extends StatefulWidget {
   final int nbItems;
   final VoidCallback onDelete;
-  const ExpansionPanelListExampleBien({
+  const ExpansionPanelListExampleProprietaire({
     super.key,
     required this.nbItems,
     required this.onDelete,
   });
 
   @override
-  State<ExpansionPanelListExampleBien> createState() =>
+  State<ExpansionPanelListExampleProprietaire> createState() =>
       _ExpansionPanelListExampleState();
 }
 
 class _ExpansionPanelListExampleState
-    extends State<ExpansionPanelListExampleBien> {
+    extends State<ExpansionPanelListExampleProprietaire> {
   late List<Item> _data;
 
   @override
@@ -62,7 +62,8 @@ class _ExpansionPanelListExampleState
   }
 
   @override
-  void didUpdateWidget(covariant ExpansionPanelListExampleBien oldWidget) {
+  void didUpdateWidget(
+      covariant ExpansionPanelListExampleProprietaire oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.nbItems != widget.nbItems) {
       setState(() {
@@ -103,7 +104,7 @@ class _ExpansionPanelListExampleState
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        BuildFieldBien(),
+                        BuildFieldProprietaire(),
                         const SizedBox(height: 10),
                         ListTile(
                           trailing: const Icon(Icons.delete),

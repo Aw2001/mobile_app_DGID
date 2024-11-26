@@ -1,6 +1,4 @@
-import 'package:mobile_data_collection/screens/home_screen/navbar_screen.dart';
 import 'package:mobile_data_collection/screens/welcome_screen.dart';
-import 'package:mobile_data_collection/screens/form_screen/multi_step_screen.dart';
 import 'utils/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -23,7 +21,7 @@ class MyApp extends StatelessWidget {
                 bodyColor: Colors.black,
                 fontFamily: 'Roboto-Regular',
               )),
-      home: NavBarScreen(),
+      home: WelcomeScreen(),
     );
   }
 }
