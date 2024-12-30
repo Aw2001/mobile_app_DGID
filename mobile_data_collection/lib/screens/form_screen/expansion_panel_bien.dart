@@ -3,6 +3,7 @@ import 'package:mobile_data_collection/utils/constants.dart';
 import 'field_bien.dart';
 
 class ExpansionPanelListExampleBienApp extends StatelessWidget {
+
   const ExpansionPanelListExampleBienApp({super.key});
 
   @override
@@ -29,18 +30,13 @@ class Item {
   bool isExpanded;
 }
 
-List<Item> generateItems(int numberOfItems) {
-  return List<Item>.generate(numberOfItems, (int index) {
-    return Item(
-      headerValue: 'Informations sur le bien',
-    );
-  });
-}
+
 
 class ExpansionPanelListExampleBien extends StatefulWidget {
-  final int nbItems;
+  late int nbItems;
   final VoidCallback onDelete;
-  const ExpansionPanelListExampleBien({
+  late int newIndex;
+  ExpansionPanelListExampleBien({
     super.key,
     required this.nbItems,
     required this.onDelete,
@@ -51,14 +47,16 @@ class ExpansionPanelListExampleBien extends StatefulWidget {
       _ExpansionPanelListExampleState();
 }
 
-class _ExpansionPanelListExampleState
-    extends State<ExpansionPanelListExampleBien> {
+class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleBien> {
   late List<Item> _data;
+  var indexAjoute = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _data = generateItems(widget.nbItems);
+  List<Item> generateItems(int numberOfItems) {
+    return List<Item>.generate(numberOfItems, (int index) {
+      return Item(
+        headerValue: 'Informations du local',
+      );
+    });
   }
 
   @override
@@ -68,7 +66,14 @@ class _ExpansionPanelListExampleState
       setState(() {
         _data = generateItems(widget.nbItems);
       });
+      print(_data.indexed);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _data = generateItems(widget.nbItems);
   }
 
   @override
@@ -83,12 +88,14 @@ class _ExpansionPanelListExampleState
   Widget _buildPanel() {
     return Column(
       children: _data.map<Widget>((Item item) {
+        int currentIndex = _data.indexOf(item);
         return Column(
           children: [
             ExpansionPanelList(
               expansionCallback: (int index, bool isExpanded) {
                 setState(() {
-                  _data[index].isExpanded = isExpanded;
+                  _data[currentIndex].isExpanded = isExpanded;
+                  print(currentIndex);
                 });
               },
               children: [
@@ -104,14 +111,15 @@ class _ExpansionPanelListExampleState
                     child: Column(
                       children: [
                         BuildFieldBien(),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 1),
                         ListTile(
-                          trailing: const Icon(Icons.delete),
+                          leading: const Icon(Icons.delete),
                           onTap: () {
                             setState(() {
                               _data.removeWhere(
                                   (Item currentItem) => item == currentItem);
                             });
+                            widget.onDelete();
                           },
                         ),
                       ],

@@ -42,30 +42,35 @@ class MultiStepScreenState extends State<MultiStepScreen> {
           ),
         ),
       ),
-      body: Theme(
-        data: Theme.of(context).copyWith(
-          colorScheme: ColorScheme.light(
-            primary: Color(0xFFC3AD65),
-            onPrimary: Colors.white,
+      body: Stack(
+        children: [
+          Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Color(0xFFC3AD65),
+                onPrimary: Colors.white,
+              ),
+            ),
+            child: StepList(
+              activeStepIndex: _activeStepIndex,
+              onStepContinue: () {
+                setState(() {
+                  if (_activeStepIndex < 2) {
+                    _activeStepIndex += 1;
+                  }
+                });
+              },
+              onStepCancel: () {
+                setState(() {
+                  if (_activeStepIndex > 0) {
+                    _activeStepIndex -= 1;
+                  }
+                });
+              },
+            ),
           ),
-        ),
-        child: StepList(
-          activeStepIndex: _activeStepIndex,
-          onStepContinue: () {
-            setState(() {
-              if (_activeStepIndex < 2) {
-                _activeStepIndex += 1;
-              }
-            });
-          },
-          onStepCancel: () {
-            setState(() {
-              if (_activeStepIndex > 0) {
-                _activeStepIndex -= 1;
-              }
-            });
-          },
-        ),
+          // Bouton "Envoyer" en bas à droite
+        ],
       ),
     );
   }

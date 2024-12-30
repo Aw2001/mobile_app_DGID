@@ -26,7 +26,7 @@ class InitState extends State<SignUpScreen> {
             child: const Text(
               'Créer un compte',
               style: TextStyle(
-                fontSize: 28,
+                fontSize: 35,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'expansion_panel_proprietaire.dart';
-import 'expansion_panel.dart';
+import 'expansion_panel_locataire.dart';
 import 'expansion_panel_bien.dart';
 
 class StepList extends StatefulWidget {
@@ -22,6 +22,7 @@ class StepList extends StatefulWidget {
 class StepListState extends State<StepList> {
   int nbItemsForBien = 1;
   int nbItemsForProprietaire = 1;
+  int nbItemsForLocataire = 1;
 
   void decrementNbItemsForBien() {
     setState(() {
@@ -39,6 +40,14 @@ class StepListState extends State<StepList> {
     });
   }
 
+  void decrementNbItemsForLocataire() {
+    setState(() {
+      if (nbItemsForLocataire > 0) {
+        nbItemsForLocataire--; // Réduire nbItems seulement si > 0
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stepper(
@@ -52,48 +61,6 @@ class StepListState extends State<StepList> {
 
   List<Step> _buildSteps() {
     return [
-      Step(
-        title: const Text('Parcelle'),
-        content: SingleChildScrollView(
-          child: ExpansionPanelListExample(),
-        ),
-        isActive: widget.activeStepIndex >= 0,
-        state: widget.activeStepIndex <= 0
-            ? StepState.editing
-            : StepState.complete,
-      ),
-      Step(
-        title: const Text('Bien'),
-        content: SingleChildScrollView(
-          child: Column(
-            children: [
-              ExpansionPanelListExampleBien(
-                  nbItems: nbItemsForBien, onDelete: decrementNbItemsForBien),
-              const SizedBox(height: 16.0),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FloatingActionButton.extended(
-                  onPressed: () {
-                    setState(() {
-                      nbItemsForBien++;
-                    });
-                  },
-                  backgroundColor: Color.fromARGB(255, 148, 92, 34),
-                  label: const Text(
-                    "Ajouter un bien",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  icon: Icon(Icons.add, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-        isActive: widget.activeStepIndex >= 1,
-        state: widget.activeStepIndex <= 1
-            ? StepState.editing
-            : StepState.complete,
-      ),
       Step(
         title: const Text('Proprietaire'),
         content: SingleChildScrollView(
@@ -114,6 +81,71 @@ class StepListState extends State<StepList> {
                   backgroundColor: Color.fromARGB(255, 148, 92, 34),
                   label: const Text(
                     "Ajouter un proprietaire",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  icon: Icon(Icons.add, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        isActive: widget.activeStepIndex >= 0,
+        state: widget.activeStepIndex <= 0
+            ? StepState.editing
+            : StepState.complete,
+      ),
+      Step(
+        title: const Text('Local'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              ExpansionPanelListExampleBien(
+                  nbItems: nbItemsForBien, onDelete: decrementNbItemsForBien),
+              const SizedBox(height: 16.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    setState(() {
+                      nbItemsForBien++;
+                    });
+                  },
+                  backgroundColor: Color.fromARGB(255, 148, 92, 34),
+                  label: const Text(
+                    "Ajouter un local",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  icon: Icon(Icons.add, color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+        isActive: widget.activeStepIndex >= 1,
+        state: widget.activeStepIndex <= 1
+            ? StepState.editing
+            : StepState.complete,
+      ),
+      Step(
+        title: const Text('Locataire'),
+        content: SingleChildScrollView(
+          child: Column(
+            children: [
+              ExpansionPanelListExampleLocataire(
+                  nbItems: nbItemsForLocataire,
+                  onDelete: decrementNbItemsForLocataire),
+              const SizedBox(height: 16.0),
+              Align(
+                alignment: Alignment.centerRight,
+                child: FloatingActionButton.extended(
+                  onPressed: () {
+                    setState(() {
+                      nbItemsForLocataire++;
+                    });
+                  },
+                  backgroundColor: Color.fromARGB(255, 148, 92, 34),
+                  label: const Text(
+                    "Ajouter un locataire",
                     style: TextStyle(color: Colors.white),
                   ),
                   icon: Icon(Icons.add, color: Colors.white),

@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
-import 'field_proprietaire.dart';
+import 'field_locataire.dart';
 
-class ExpansionPanelListExampleProprietaireApp extends StatelessWidget {
-  const ExpansionPanelListExampleProprietaireApp({super.key});
+class ExpansionPanelListExampleLocataireApp extends StatelessWidget {
+  const ExpansionPanelListExampleLocataireApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: ExpansionPanelListExampleProprietaire(
+        body: ExpansionPanelListExampleLocataire(
             nbItems: 0,
             onDelete: () {
               print("un panneau a été supprimé");
@@ -32,27 +32,26 @@ class Item {
 List<Item> generateItems(int numberOfItems) {
   return List<Item>.generate(numberOfItems, (int index) {
     return Item(
-      headerValue: 'Informations sur le proprietaire',
+      headerValue: 'Informations sur le Locataire',
     );
   });
 }
 
-class ExpansionPanelListExampleProprietaire extends StatefulWidget {
+class ExpansionPanelListExampleLocataire extends StatefulWidget {
   late int nbItems;
   final VoidCallback onDelete;
-  ExpansionPanelListExampleProprietaire({
+  ExpansionPanelListExampleLocataire({
     super.key,
     required this.nbItems,
     required this.onDelete,
   });
 
   @override
-  State<ExpansionPanelListExampleProprietaire> createState() =>
+  State<ExpansionPanelListExampleLocataire> createState() =>
       _ExpansionPanelListExampleState();
 }
 
-class _ExpansionPanelListExampleState
-    extends State<ExpansionPanelListExampleProprietaire> {
+class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleLocataire> {
   late List<Item> _data;
 
   @override
@@ -62,8 +61,7 @@ class _ExpansionPanelListExampleState
   }
 
   @override
-  void didUpdateWidget(
-      covariant ExpansionPanelListExampleProprietaire oldWidget) {
+  void didUpdateWidget(covariant ExpansionPanelListExampleLocataire oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.nbItems != widget.nbItems) {
       setState(() {
@@ -105,17 +103,19 @@ class _ExpansionPanelListExampleState
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        BuildFieldProprietaire(),
+                        BuildFieldLocataire(),
                         const SizedBox(height: 10),
                         ListTile(
-                          leading: const Icon(Icons.delete),
-                          onTap: () {
-                            setState(() {
-                              _data.removeWhere(
-                                  (Item currentItem) => item == currentItem);
-                            });
-                            widget.onDelete();
-                          },
+                          leading: IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () {
+                              setState(() {
+                                _data.removeWhere(
+                                    (Item currentItem) => item == currentItem);
+                              });
+                              widget.onDelete();
+                            },
+                          ),
                         ),
                       ],
                     ),

@@ -81,7 +81,7 @@ class __FormContentState extends State<_FormContent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 400),
+      constraints: const BoxConstraints(maxWidth: 350),
       child: Form(
         key: _formKey,
         child: Column(

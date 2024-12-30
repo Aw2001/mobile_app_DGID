@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mobile_data_collection/screens/form_screen/multi_step_screen.dart';
+import 'package:mobile_data_collection/screens/welcome_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -15,7 +16,6 @@ class MapScreenState extends State<MapScreen> {
   LatLng? _currentPosition; // Stocke la position actuelle de l'appareil
   List<List<LatLng>> polygonPoints = [];
   final MapController _mapController = MapController();
-  var _isDragging = false;
 
   @override
   void initState() {
@@ -169,6 +169,39 @@ class MapScreenState extends State<MapScreen> {
                 );
               },
               child: Icon(Icons.assignment),
+            ),
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: FloatingActionButton(
+              backgroundColor: Colors.white,
+              foregroundColor: Color.fromARGB(255, 148, 92, 34),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        WelcomeScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin = Offset(1.0, 0.0);
+                      const end = Offset.zero;
+                      const curve = Curves.ease;
+
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+
+                      return SlideTransition(
+                        position: offsetAnimation,
+                        child: child,
+                      );
+                    },
+                  ),
+                );
+              },
+              child: Icon(Icons.history),
             ),
           ),
           if (polygonPoints.isNotEmpty)
