@@ -13,6 +13,10 @@ class DropdownsWidget extends StatefulWidget {
 }
 
 class DropdownsWidgetState extends State<DropdownsWidget> {
+ 
+  
+      
+   bool isRegionsLoaded = false;
   String? selectedRegionId;
   String? selectedDepartmentId;
   String? selectedCommuneId;
@@ -34,7 +38,10 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   @override
   void initState() {
     super.initState();
-    fetchRegions(); // Charger les régions au démarrage
+    if (!isRegionsLoaded) {
+      fetchRegions(); // Charger les régions au démarrage
+      isRegionsLoaded = true; // Indiquer que les régions ont été chargées
+    }
   }
 
   // Fonction pour récupérer les régions depuis l'API
@@ -541,47 +548,55 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
     required ValueChanged<String?> onChanged,
     required bool isEnabled,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: DropdownButtonFormField<String>(
-        decoration: InputDecoration(
-          hintText: label,
-          fillColor:
-              isEnabled ? Color.fromARGB(255, 255, 254, 251) : Colors.grey[300],
-          filled: true,
-          border: OutlineInputBorder(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Form(
+        
+        
+        child: DropdownButtonFormField<String>(
+           
+          
+          decoration: InputDecoration(
+            hintText: label,
+            fillColor:
+                isEnabled ? Color.fromARGB(255, 255, 254, 251) : Colors.grey[300],
+            filled: true,
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                borderSide: BorderSide(color: Colors.grey)),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                  color: isEnabled ? Color(0xFFC3AD65) : Colors.grey[300]!),
               borderRadius: BorderRadius.circular(8.0),
-              borderSide: BorderSide(color: Colors.grey)),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-                color: isEnabled ? Color(0xFFC3AD65) : Colors.grey[300]!),
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Color(0xFFC3AD65),
             ),
-            borderRadius: BorderRadius.circular(8.0),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Color(0xFFC3AD65),
+              ),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            
           ),
+          value: value,
+          items: isEnabled
+              ? (items.isNotEmpty
+                  ? items
+                      .map((item) => DropdownMenuItem<String>(
+                            value: item['id'],
+                            child: Text(item['name']!),
+                          ))
+                      .toList()
+                  : stringItems
+                      .map((item) => DropdownMenuItem<String>(
+                            value: item,
+                            child: Text(item),
+                          ))
+                      .toList())
+              : [],
+          onChanged: isEnabled ? onChanged : null,
         ),
-        value: value,
-        items: isEnabled
-            ? (items.isNotEmpty
-                ? items
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item['id'],
-                          child: Text(item['name']!),
-                        ))
-                    .toList()
-                : stringItems
-                    .map((item) => DropdownMenuItem<String>(
-                          value: item,
-                          child: Text(item),
-                        ))
-                    .toList())
-            : [],
-        onChanged: isEnabled ? onChanged : null,
       ),
+      
     );
   }
 }

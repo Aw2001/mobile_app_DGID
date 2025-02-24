@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mobile_data_collection/screens/form_screen/multi_step_screen.dart';
 import 'package:mobile_data_collection/screens/welcome_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -133,44 +133,14 @@ class MapScreenState extends State<MapScreen> {
         ),
         children: [
           TileLayer(
-            urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            subdomains: const ['a', 'b', 'c'],
-            tileSize: 256.0,
-            keepBuffer: 5,
+            urlTemplate:
+                "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=AIzaSyCM5PAM4S5-EPhNCuOaC5xBp2iFpVlr0o8",
+            tileSize: 256,
+            maxZoom: 20,
+            minZoom: 3,
+            subdomains: [],
           ),
-          Positioned(
-            bottom: 100,
-            right: 20,
-            child: FloatingActionButton(
-              backgroundColor: Color.fromARGB(255, 148, 92, 34),
-              foregroundColor: Colors.white,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        MultiStepScreen(),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.ease;
 
-                      var tween = Tween(begin: begin, end: end)
-                          .chain(CurveTween(curve: curve));
-                      var offsetAnimation = animation.drive(tween);
-
-                      return SlideTransition(
-                        position: offsetAnimation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
-              },
-              child: Icon(Icons.assignment),
-            ),
-          ),
           Positioned(
             bottom: 20,
             right: 20,

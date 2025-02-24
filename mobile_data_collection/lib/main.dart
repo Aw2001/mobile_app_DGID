@@ -1,3 +1,5 @@
+import 'package:mobile_data_collection/screens/formulaire/multi_form_page.dart';
+import 'package:mobile_data_collection/screens/home_screen/home_screen.dart';
 import 'package:mobile_data_collection/screens/home_screen/navbar_screen.dart';
 import 'package:mobile_data_collection/screens/welcome_screen.dart';
 import 'utils/constants.dart';
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
                 bodyColor: Colors.black,
                 fontFamily: 'Roboto-Regular',
               )),
-      home: NavBarScreen(),
+      home: WelcomeScreen(),
     );
   }
 }

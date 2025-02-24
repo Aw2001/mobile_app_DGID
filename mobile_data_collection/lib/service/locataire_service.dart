@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_data_collection/model/locataire.dart';
+import 'package:mobile_data_collection/service/storage_service.dart';
 
 class LocataireService {
   String baseUrl;
@@ -8,9 +9,18 @@ class LocataireService {
 
   Future<void> ajouterLocataire(String? matricule, Locataire locataire) async {
     final url = Uri.parse('$baseUrl/add?matricule=$matricule');
+    // Récupérer le token depuis le stockage sécurisé
+    final String? token = await StorageService.readData('jwt_token');
+
+    if (token == null) {
+      throw Exception('Token introuvable, veuillez vous reconnecter.');
+    }
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
       body: jsonEncode(locataire.toJson()),
     );
 
@@ -21,9 +31,17 @@ class LocataireService {
 
   Future<void> mettreAJourLocataire(Locataire locataire) async {
     final url = Uri.parse('$baseUrl/update');
+    final String? token = await StorageService.readData('jwt_token');
+
+    if (token == null) {
+      throw Exception('Token introuvable, veuillez vous reconnecter.');
+    }
     final response = await http.put(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
       body: jsonEncode(locataire.toJson()),
     );
 
@@ -39,9 +57,17 @@ class LocataireService {
     }
     final url = Uri.parse('$baseUrl/research/$id');
     try {
+      final String? token = await StorageService.readData('jwt_token');
+
+      if (token == null) {
+        throw Exception('Token introuvable, veuillez vous reconnecter.');
+      }
       final response = await http.get(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
       );
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {

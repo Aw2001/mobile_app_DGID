@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:mobile_data_collection/model/proprietaire.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_data_collection/service/storage_service.dart';
 
 class ProprietaireService {
   String baseUrl;
@@ -9,9 +10,19 @@ class ProprietaireService {
 
   Future<void> ajouterProprietaire(Proprietaire proprietaire) async {
     final url = Uri.parse('$baseUrl/add');
+
+     // Récupérer le token depuis le stockage sécurisé
+      final String? token = await StorageService.readData('jwt_token');
+
+      if (token == null) {
+        throw Exception('Token introuvable, veuillez vous reconnecter.');
+      }
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
       body: jsonEncode(proprietaire.toJson()),
     );
     if (response.statusCode != 200) {
@@ -21,9 +32,18 @@ class ProprietaireService {
 
   Future<void> mettreAJourProprietaire(Proprietaire proprietaire) async {
     final url = Uri.parse('$baseUrl/update');
+    // Récupérer le token depuis le stockage sécurisé
+    final String? token = await StorageService.readData('jwt_token');
+
+    if (token == null) {
+      throw Exception('Token introuvable, veuillez vous reconnecter.');
+    }
     final response = await http.put(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json'
+      },
       body: jsonEncode(proprietaire.toJson()),
     );
     if (response.statusCode != 200) {
@@ -37,10 +57,19 @@ class ProprietaireService {
       throw Exception('L\'ID du proprietaire ne peut pas être nul');
     }
     final url = Uri.parse('$baseUrl/research/$id');
+    // Récupérer le token depuis le stockage sécurisé
+    final String? token = await StorageService.readData('jwt_token');
+
+    if (token == null) {
+      throw Exception('Token introuvable, veuillez vous reconnecter.');
+    }
     try {
       final response = await http.get(
         url,
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json'
+        },
       );
       if (response.statusCode == 200) {
         if (response.body.isEmpty) {

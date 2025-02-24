@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_data_collection/screens/formulaire/field_bienn.dart';
+import 'package:mobile_data_collection/screens/formulaire/field_locataire.dart';
+import 'package:mobile_data_collection/screens/formulaire/field_proprietaire.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
-import 'field_proprietaire.dart';
 
-class ExpansionPanelListExampleProprietaireApp extends StatelessWidget {
-  const ExpansionPanelListExampleProprietaireApp({super.key});
+
+class ExpansionPanelListExampleApp extends StatelessWidget {
+  
+  const ExpansionPanelListExampleApp({super.key});
+  
+  get controllers => null;
+  
+  get fields => null;
+  
+  get dropdownLocataire => null;
+  
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: ExpansionPanelListExampleProprietaire(
+        body: ExpansionPanelListExampleLocataire(
+            headerValue: '',
             nbItems: 0,
             onDelete: () {
               print("un panneau a été supprimé");
-            }),
+            },
+            controllers: controllers,
+            dropdownLocataire: dropdownLocataire,
+            fields: fields,),
       ),
     );
   }
@@ -29,47 +44,61 @@ class Item {
   bool isExpanded;
 }
 
-List<Item> generateItems(int numberOfItems) {
-  return List<Item>.generate(numberOfItems, (int index) {
-    return Item(
-      headerValue: 'Informations sur le proprietaire',
-    );
-  });
-}
 
-class ExpansionPanelListExampleProprietaire extends StatefulWidget {
+
+class ExpansionPanelListExampleLocataire extends StatefulWidget {
   late int nbItems;
+  
+  final List<Map<String, String>> fields;
+  final Map<String, TextEditingController> controllers;
+  final Map<String, String?> dropdownLocataire;
   final VoidCallback onDelete;
-  ExpansionPanelListExampleProprietaire({
+  final String headerValue;
+
+  
+  
+  ExpansionPanelListExampleLocataire({
     super.key,
     required this.nbItems,
+    required this.headerValue,
     required this.onDelete,
+    required this.controllers, 
+    required this.fields, required this.dropdownLocataire
+    
   });
 
   @override
-  State<ExpansionPanelListExampleProprietaire> createState() =>
+  State<ExpansionPanelListExampleLocataire> createState() =>
       _ExpansionPanelListExampleState();
 }
 
-class _ExpansionPanelListExampleState
-    extends State<ExpansionPanelListExampleProprietaire> {
+class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleLocataire> {
   late List<Item> _data;
+  var indexAjoute = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _data = generateItems(widget.nbItems);
+  List<Item> generateItems(int numberOfItems) {
+    return List<Item>.generate(1, (int index) {
+      return Item(
+        headerValue: widget.headerValue,
+      );
+    });
   }
 
   @override
-  void didUpdateWidget(
-      covariant ExpansionPanelListExampleProprietaire oldWidget) {
+  void didUpdateWidget(covariant ExpansionPanelListExampleLocataire oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.nbItems != widget.nbItems) {
       setState(() {
         _data = generateItems(widget.nbItems);
       });
+      print(_data.indexed);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _data = generateItems(widget.nbItems);
   }
 
   @override
@@ -91,6 +120,7 @@ class _ExpansionPanelListExampleState
               expansionCallback: (int index, bool isExpanded) {
                 setState(() {
                   _data[currentIndex].isExpanded = isExpanded;
+                  print(currentIndex);
                 });
               },
               children: [
@@ -105,8 +135,11 @@ class _ExpansionPanelListExampleState
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        BuildFieldProprietaire(),
-                        const SizedBox(height: 10),
+                        BuildFieldLocataire(
+                          controllers: widget.controllers,
+                          dropdownLocataire: widget.dropdownLocataire,
+                          fields: widget.fields),
+                        const SizedBox(height: 1),
                         ListTile(
                           leading: const Icon(Icons.delete),
                           onTap: () {

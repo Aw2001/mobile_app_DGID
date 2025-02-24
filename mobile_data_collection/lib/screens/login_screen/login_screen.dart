@@ -1,6 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:mobile_data_collection/model/login_utilisateur.dart';
+import 'package:mobile_data_collection/screens/forgot_password_screnn.dart';
+import 'package:mobile_data_collection/screens/home_screen/home_screen.dart';
+import 'package:mobile_data_collection/service/storage_service.dart';
 import '../sign_up_screen/sign_up_screen.dart';
-import '../home_screen/navbar_screen.dart';
+import 'package:http/http.dart' as http;
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,49 +21,66 @@ class InitState extends State<LoginScreen> {
     final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false, //permettre de fixer le contenu
+      resizeToAvoidBottomInset: false, // Permet de fixer le contenu
       body: Stack(
         children: [
           Positioned(
-            top: isSmallScreen
-                ? screenSize.height * 0.1
-                : screenSize.height * 0.15,
-            left: 20,
-            child: const Text(
-              'Se Connecter',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 35,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF8c6023),
-              ),
+            top: 0.05 * screenSize.height,
+            left: 0,
+            right: 0,
+            child: Column(
+              children: [
+                // Logo en haut
+                const SizedBox(height: 10),
+                Image.asset('assets/images/logoT.png', width: 170),
+                const SizedBox(height: 1),
+
+                // Titre principal
+               
+                // Sous-titre "Bienvenue"
+                const SizedBox(height: 1),
+                const Text(
+                  'Bienvenue',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFC3AD65),
+                  ),
+                ),
+
+                // Texte d'invitation
+                const SizedBox(height: 5),
+                const Text(
+                  'Veuillez vous connecter pour continuer',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                ),
+               
+
+              ],
             ),
           ),
+
+          // Contenu du formulaire en bas
+          
           Positioned(
-            top: isSmallScreen
-                ? screenSize.height * 0.4
-                : screenSize.height * 0.3,
+            bottom: isSmallScreen
+                ? screenSize.height * 0.15
+                : screenSize.height * 0.05,
             left: 0,
             right: 0,
             child: Center(
-                child: isSmallScreen
-                    ? const Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _FormContent(),
-                        ],
-                      )
-                    : Container(
-                        padding: const EdgeInsets.all(32.0),
-                        constraints: const BoxConstraints(maxWidth: 800),
-                        child: const Row(
-                          children: [
-                            Expanded(
-                              child: Center(child: _FormContent()),
-                            ),
-                          ],
-                        ),
-                      )),
+              child: isSmallScreen
+                  ? const _FormContent()
+                  : Container(
+                      padding: const EdgeInsets.all(32.0),
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: const _FormContent(),
+                    ),
+            ),
           )
         ],
       ),
@@ -75,27 +97,88 @@ class _FormContent extends StatefulWidget {
 
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  String _errorMessage = "";
+  LoginUtilisateur user = LoginUtilisateur("", "");
+
+  Future<void> loginUser(String email, String password) async {
+    Uri url = Uri.parse("http://10.0.2.2:8081/auth/login");
+    try {
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'email': email,
+          'password': password,
+        }),
+      );
+      
+      if (response.statusCode == 200) {
+        String token = json.decode(response.body)['token'];
+        await StorageService.writeData('jwt_token', token);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen(email)),
+        );
+      } else {
+        print("Erreur ${response.statusCode} : ${response.body}");
+        setState(() {
+          _errorMessage = "Adresse email ou mot de passe incorrect."; // Message d'erreur
+        });
+      }
+    } catch (e) {
+      print("Erreur : $e");
+      setState(() {
+        _errorMessage = "Une erreur est survenue. Veuillez réessayer.";
+      });
+    }
+  }
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 350),
+      constraints: const BoxConstraints(maxWidth: 450),
       child: Form(
         key: _formKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+             if (_errorMessage.isNotEmpty)
+              Column(
+                 children: [
+                  Padding(
+                  padding: const EdgeInsets.only(bottom: 16.0), // Espacement avec les champs
+                  child: Text(
+                    _errorMessage,
+                    style: const TextStyle(
+                      color: Colors.red,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  ),
+                 ] 
+              ),
+              
+            // Champ email
             TextFormField(
+              controller: _emailController,
+              onChanged: (val) {
+                user.identifiant = val;
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Ce champ ne peut pas être vide';
                 }
 
                 bool emailValid = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                     .hasMatch(value);
                 if (!emailValid) {
                   return 'Veuillez saisir une adresse email valide';
@@ -108,16 +191,23 @@ class __FormContentState extends State<_FormContent> {
                 prefixIcon: Icon(Icons.email_outlined),
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                  color: Color(0xFF8c6023),
-                )),
+                  borderSide: BorderSide(
+                    color: Color(0xFF8c6023),
+                  ),
+                ),
                 floatingLabelStyle: TextStyle(
-                  color: Color(0xFF8c6023), // Couleur du label en focus
+                  color: Color(0xFF8c6023),
                 ),
               ),
             ),
             _gap(),
+
+            // Champ mot de passe
             TextFormField(
+              controller: _passwordController,
+              onChanged: (val) {
+                user.password = val;
+              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Ce champ ne peut pas être vide';
@@ -141,23 +231,28 @@ class __FormContentState extends State<_FormContent> {
                   },
                 ),
                 focusedBorder: const OutlineInputBorder(
-                    borderSide: BorderSide(
-                  color: Color(0xFF8c6023),
-                )),
-                // Style du label lorsqu'il est en focus
+                  borderSide: BorderSide(
+                    color: Color(0xFF8c6023),
+                  ),
+                ),
                 floatingLabelStyle: const TextStyle(
                   color: Color(0xFF8c6023),
                 ),
               ),
             ),
             _gap(),
+
+            // Mot de passe oublié
             Row(
-              mainAxisAlignment:
-                  MainAxisAlignment.end, // Aligne le texte à droite
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
                   onTap: () {
-                    // Logique de "Mot de passe oublié" ici
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ForgotPasswordScrenn()),
+                    );
+
                   },
                   child: const Text(
                     'Mot de passe oublié ?',
@@ -170,12 +265,14 @@ class __FormContentState extends State<_FormContent> {
               ],
             ),
             _gap(),
+
+            // Bouton de connexion
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFFC3AD65),
+                  backgroundColor: const Color(0xFFC3AD65),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
@@ -183,64 +280,50 @@ class __FormContentState extends State<_FormContent> {
                   padding: EdgeInsets.all(10.0),
                   child: Text(
                     'Connexion',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => NavBarScreen()),
-                    );
+                    loginUser(_emailController.text, _passwordController.text);
                   }
                 },
               ),
             ),
-            const SizedBox(height: 40),
-            Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    thickness: 0.5,
-                    color: Colors.grey[400],
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "Vous n'avez pas de compte ? ",
+                    style: TextStyle(fontSize: 14.0),
                   ),
-                ),
-                Text('Vous n\'avez pas de compte ?'),
-                Expanded(
-                  child: Divider(
-                    thickness: 0.5,
-                    color: Colors.grey[400],
+                  GestureDetector(
+                    onTap: () {
+                      // Redirection vers la page de création de compte sans animation
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          pageBuilder: (context, animation, secondaryAnimation) => SignUpScreen(),
+                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                            return child; // Pas d'animation, affichage instantané
+                          },
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Créer un compte",
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        color: Color(0xFF8c6023),
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Color(0xFFC3AD65),
-                  backgroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4)),
-                  side: const BorderSide(
-                    color: Color(0xFFc3AD65),
-                    width: 2,
-                  ),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(10.0),
-                  child: Text(
-                    'Créer un compte',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignUpScreen()),
-                  );
-                },
+                ],
               ),
             ),
           ],

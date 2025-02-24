@@ -9,12 +9,13 @@ class NavBarScreen extends StatelessWidget {
   final GlobalKey<MapScreenState> mapScreenKey = GlobalKey<MapScreenState>();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  Color customColor = kBackgroundColor;
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final bool isLargeScreen = width > 800;
-    const Color customColor = kBackgroundColor;
+    
 
     return Theme(
       data: ThemeData.light().copyWith(
@@ -41,7 +42,7 @@ class NavBarScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "Accueil",
+                    "Explorer",
                     style: TextStyle(
                         color: Color(0xFFC3AD65),
                         fontWeight: FontWeight.w500,
@@ -56,7 +57,7 @@ class NavBarScreen extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Color(0xFFC3AD65),
                   child: Text(
-                    'AF',
+                    'ES',
                     style: TextStyle(
                         fontSize: 15,
                         color: Colors.black,
@@ -66,14 +67,28 @@ class NavBarScreen extends StatelessWidget {
               )
             ],
           ),
-          drawer: _drawer(),
+          drawer: CustomDrawer(mapScreenKey: mapScreenKey),
           body: MapScreen(key: mapScreenKey)),
     );
   }
 
-  Widget _drawer() {
-    const Color customColor =
-        kBackgroundColor; // Ta couleur personnalisée pour le fond du Drawer
+
+}
+class CustomDrawer extends StatefulWidget {
+  final GlobalKey<MapScreenState> mapScreenKey;
+  const CustomDrawer({Key? key, required this.mapScreenKey}) : super(key: key);
+
+  @override
+  _CustomDrawerState createState() => _CustomDrawerState();
+}
+
+class _CustomDrawerState extends State<CustomDrawer> {
+  
+
+  @override
+  Widget build(BuildContext context) {
+    const Color customColor = kBackgroundColor;
+
 
     return Drawer(
       backgroundColor: customColor, // Définit la couleur de fond du Drawer
@@ -93,9 +108,10 @@ class NavBarScreen extends StatelessWidget {
               ),
             ),
           ),
-          DropdownsWidget(mapScreenKey: mapScreenKey),
+          DropdownsWidget(mapScreenKey: widget.mapScreenKey),
         ],
       ),
     );
   }
 }
+

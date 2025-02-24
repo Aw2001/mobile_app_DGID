@@ -1,20 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_data_collection/model/recensement.dart';
+import 'package:mobile_data_collection/screens/formulaire/field_bienn.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
-import 'field_bien.dart';
+
 
 class ExpansionPanelListExampleBienApp extends StatelessWidget {
-
+  
   const ExpansionPanelListExampleBienApp({super.key});
+  
+  get recensement => null;
+  
+  get controllers => null;
+
+  get radioBien => null;
+
+  get dropDownBien => null;
+  
+  get fieldsBien => null;
+  
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         body: ExpansionPanelListExampleBien(
+            headerValue: '',
+            recensement: recensement,
             nbItems: 0,
             onDelete: () {
               print("un panneau a été supprimé");
-            }),
+            },
+            controllers: controllers,
+            dropDownBien: dropDownBien,
+            radioBien: radioBien,
+            fieldsBien: fieldsBien,),
       ),
     );
   }
@@ -34,12 +53,24 @@ class Item {
 
 class ExpansionPanelListExampleBien extends StatefulWidget {
   late int nbItems;
+  final Recensement recensement;
+  final List<Map<String, String>> fieldsBien;
+  final Map<String, TextEditingController> controllers;
+  final Map<String, String?> radioBien;
+  final Map<String, String?> dropDownBien;
   final VoidCallback onDelete;
-  late int newIndex;
+  final String headerValue;
+
+  
+  
   ExpansionPanelListExampleBien({
     super.key,
     required this.nbItems,
+    required this.headerValue,
     required this.onDelete,
+    required this.recensement,
+    required this.controllers, 
+    required this.fieldsBien, required this.radioBien, required this.dropDownBien
   });
 
   @override
@@ -52,9 +83,9 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleBie
   var indexAjoute = 0;
 
   List<Item> generateItems(int numberOfItems) {
-    return List<Item>.generate(numberOfItems, (int index) {
+    return List<Item>.generate(1, (int index) {
       return Item(
-        headerValue: 'Informations du local',
+        headerValue: widget.headerValue,
       );
     });
   }
@@ -110,7 +141,12 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleBie
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
-                        BuildFieldBien(),
+                        BuildFieldBien(
+                          recensement: widget.recensement,
+                          controllers: widget.controllers,
+                          dropDownBien: widget.dropDownBien,
+                          radioBien: widget.radioBien,
+                          fieldsBien: widget.fieldsBien),
                         const SizedBox(height: 1),
                         ListTile(
                           leading: const Icon(Icons.delete),
