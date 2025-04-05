@@ -52,10 +52,10 @@ class RecensementCard extends StatelessWidget {
             child: ListTile(
             title: Text(recensement.commentaire,
             style: TextStyle(color: isBrown ? Colors.white : Colors.black,
-            fontSize: 14)),
+            fontSize: 12)),
             subtitle: Text('Créé le ${recensement.dateCreation}',
             style: TextStyle(color: isBrown ? Colors.white : Colors.black,
-            fontSize: 14)),
+            fontSize: 12)),
             trailing: GestureDetector(
               onTap: () {
                 // Affiche un modal bottom sheet
@@ -74,20 +74,38 @@ class RecensementCard extends StatelessWidget {
                         children: [
                            ListTile(
                             leading: const Icon(
-                              Icons.remove_circle_outline,
-                              color: Colors.red,
+                             Icons.assignment,
+                              color: Colors.green,
                             ),
                             title: const Text(
-                              'Supprimer de l\'appareil',
-                              style: TextStyle(fontSize: 16),
+                              'Commencer la collecte',
+                              style: TextStyle(fontSize: 12),
                             ),
-                            onTap: () {
-                              // Ajouter l'action ici pour supprimer
-                              // Exemple : print('Supprimer action déclenchée');
+                            onTap: () async{
+                              Navigator.push(
+                                context,
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation, secondaryAnimation) =>
+                                      MultiFormPage(recensement: recensement),//on va dans multi stepscreen avec les info du recensement
+                                  transitionsBuilder:
+                                      (context, animation, secondaryAnimation, child) {
+                                    const begin = Offset(1.0, 0.0);
+                                    const end = Offset.zero;
+                                    const curve = Curves.ease;
+
+                                    var tween = Tween(begin: begin, end: end)
+                                        .chain(CurveTween(curve: curve));
+                                    var offsetAnimation = animation.drive(tween);
+
+                                    return SlideTransition(
+                                      position: offsetAnimation,
+                                      child: child,
+                                    );
+                                  },
+                                ),
+                              );
                             },
                           ),
-                          
-                          
                         ],
                       ),
                     );

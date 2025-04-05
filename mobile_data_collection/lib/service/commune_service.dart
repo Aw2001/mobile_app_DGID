@@ -4,7 +4,7 @@ import 'package:mobile_data_collection/service/storage_service.dart';
 
 class CommuneService {
   static const String _baseUrl =
-      'http://10.0.2.2:8081/api/communes/byDepartement';
+      'http://192.168.1.7:8081/api/communes/byDepartement';
 
   // Méthode pour récupérer les communes
   Future<List<String>> listerCommunes(String? departementName) async {

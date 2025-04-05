@@ -8,14 +8,14 @@ class UserService {
   UserService(this.baseUrl);
 
   
-   Future<UserDto?> retournerUtilisateur(String? email) async {
-    // Vérifiez que l'email n'est pas nul
-    if (email == null) {
-      throw Exception('L\'email ne peut pas être nul');
+   Future<UserDto?> retournerUtilisateur(String? username) async {
+    // Vérifiez que l'username n'est pas nul
+    if (username == null) {
+      throw Exception('L\'username ne peut pas être nul');
     }
 
-    // Créer l'URL de la requête avec l'email
-    final url = Uri.parse('$baseUrl/$email');
+    // Créer l'URL de la requête avec l'username
+    final url = Uri.parse('$baseUrl/$username');
     
     try {
       // Récupérer le token JWT depuis le stockage local
@@ -52,4 +52,6 @@ class UserService {
       throw Exception('Erreur lors de la récupération de l\'utilisateur: $e');
     }
   }
+
+  
 }

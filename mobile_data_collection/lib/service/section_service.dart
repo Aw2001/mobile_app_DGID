@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile_data_collection/service/storage_service.dart';
 
 class SectionService {
-  static const String _baseUrl = 'http://10.0.2.2:8081/api/sections/byCommune';
+  static const String _baseUrl = 'http://192.168.1.7:8081/api/sections/byCommune';
 
   // Méthode pour récupérer les sections
   Future<List<String>> listerSections(String? communeName) async {

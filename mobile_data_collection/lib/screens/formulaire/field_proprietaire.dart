@@ -23,7 +23,7 @@ class BuildFieldProprietaire extends StatefulWidget {
 class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
   
   
-  final ProprietaireService _proprietaireService = ProprietaireService("http://10.0.2.2:8081/api/proprietaires");
+  final ProprietaireService _proprietaireService = ProprietaireService("http://192.168.1.7:8081/api/proprietaires");
 
   // Configuration of fields for Proprietaire with dropdowns and radio buttons
   
@@ -129,11 +129,11 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                      width: constraints.maxWidth - 18.0,
                      child: DropdownButtonFormField<String>(
                         value: widget.dropdownProprietaire[fieldKey],
-                        hint: Text(labelText!),
+                        hint: Text(labelText!, style: TextStyle(fontSize: 10)),
                         items: dropdownItems[fieldKey]!.map((String value) {
                           return DropdownMenuItem<String>(
                             value: value,
-                            child: Text(value),
+                            child: Text(value, style: TextStyle(fontSize: 10),),
                           );
                         }).toList(),
                         onChanged: (String? newValue) {
@@ -176,7 +176,7 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                       return null;
                     }
                     else if(!val.isValidName) {
-                      return 'Veuiller saisir un nom valide'; 
+                      return 'Il doit contenir que des lettres'; 
                     }
                     else {
                       return null;
@@ -191,12 +191,16 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
               child: CustomFormField(
                 labelText: fieldKey,
                 controller: widget.controllers[fieldKey]!,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
+                  LengthLimitingTextInputFormatter(9), 
+                ],
                 validator: (val) {
                   if(val == null || val.isEmpty) {
                       return null;
                     }
                     else if(!val.isValidPhone) {
-                      return 'Veuiller saisir un numéro de téléphone valide'; 
+                      return 'IL doit contenir 9 chiffres'; 
                     }
                     else {
                       return null;
@@ -212,10 +216,16 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                   labelText: labelText,
                   controller: widget.controllers[fieldKey],
                   validator: (val) {
-                    if (fieldKey == "numeroIdentification" && (val!.isEmpty)) {
-                      return "Ce champ est obligatoire";
-                    }
-                    return null; // Pas d'erreur pour les autres champs
+                    if (fieldKey == "numeroIdentification" ) {
+                      
+                      if((val!.isEmpty)){
+                        return "Ce champ est obligatoire";
+                      } else if (!val.isValidCni) {
+                          return 'Il doit contenir 13 ou 14 chiffres';
+                      }
+                      
+                    } 
+                    return null; 
                   },
                 ),
               );
@@ -281,13 +291,13 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                 children: [
                   Text(
                     labelText!,
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400),
                   ),
                   Row(
                     children: ["Oui", "Non"].map((option) {
                       return Expanded(
                         child: RadioListTile<String>(
-                          title: Text(option),
+                          title: Text(option, style: TextStyle(fontSize: 10),),
                           value: option,
                           groupValue: widget.radioProprietaire[fieldKey],
                           onChanged: (String? value) {

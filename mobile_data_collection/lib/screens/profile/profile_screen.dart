@@ -23,7 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   
  Future<void> logOut(String email) async {
-  Uri url = Uri.parse("http://10.0.2.2:8081/auth/logout?email=$email");
+  Uri url = Uri.parse("http://192.168.1.7:8081/auth/logout?email=$email");
 
   try {
     var response = await http.post(
@@ -50,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    userFuture = UserService("http://10.0.2.2:8081/api/utilisateurs").retournerUtilisateur(widget.email);
+    userFuture = UserService("http://192.168.1.7:8081/api/utilisateurs").retournerUtilisateur(widget.email);
   }
 
   @override

@@ -9,7 +9,8 @@ import 'package:http/http.dart' as http;
 
 class OtpPageScreen extends StatefulWidget {
   final String email;
-  const OtpPageScreen({super.key, required this.email});
+  final String message;
+  const OtpPageScreen({super.key, required this.email, required this.message});
 
   @override
   State<StatefulWidget> createState() => OtpPageState();
@@ -17,12 +18,12 @@ class OtpPageScreen extends StatefulWidget {
 
 class OtpPageState extends State<OtpPageScreen> {
   final TextEditingController _codeController = TextEditingController();
-
+  String errorMessage = "";
  
   VerifyUserDto user = VerifyUserDto("", "");
   
   Future<void> VerifyUser(String email, String code) async {
-  Uri url = Uri.parse("http://10.0.2.2:8081/auth/verify");
+  Uri url = Uri.parse("http://192.168.1.7:8081/auth/verify");
   try {
     var response = await http.post(
       url,
@@ -45,6 +46,7 @@ class OtpPageState extends State<OtpPageScreen> {
       );
     } else {
       print("Erreur ${response.statusCode} : ${response.body}");
+      errorMessage = 'Le code saisi est incorrect';
     }
   } catch (e) {
     print("Erreur : $e");
@@ -53,6 +55,7 @@ class OtpPageState extends State<OtpPageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 60,
@@ -72,14 +75,14 @@ class OtpPageState extends State<OtpPageScreen> {
         backgroundColor: kBackgroundColor,
         elevation: 0,
         titleSpacing: 0,
-        title: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+        title: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                "Code de vérificatiion envoyé !",
-                style: TextStyle(
+                widget.message,
+                style: const TextStyle(
                   color: Color(0xFFC3AD65),
                   fontWeight: FontWeight.w500,
                   fontSize: 18,
@@ -114,7 +117,14 @@ class OtpPageState extends State<OtpPageScreen> {
                   ),
                 ),
               ),
-             
+              Text(
+                errorMessage,
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
+                ),
+              ),
+              SizedBox(height: 5,),
               Pinput(
                 controller: _codeController,
                 length: 6,

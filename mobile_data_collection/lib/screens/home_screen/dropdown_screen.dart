@@ -47,7 +47,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   // Fonction pour récupérer les régions depuis l'API
   Future<void> fetchRegions() async {
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ARegions&maxFeatures=50&outputFormat=application%2Fjson'));
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ARegions&maxFeatures=50&outputFormat=application%2Fjson'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
 
@@ -70,7 +70,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   Future<void> fetchDepartments(String regionId) async {
     final cleanedRegionId = regionId.replaceAll(RegExp(r'^Regions\.'), '');
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ADepartements&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=region_id=$cleanedRegionId'));
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ADepartements&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=region_id=$cleanedRegionId'));
     if (response.statusCode == 200) {
       if (response.headers['content-type']?.contains('application/json') ??
           false) {
@@ -101,7 +101,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
     final cleanedDepartmentId =
         departementId.replaceAll(RegExp(r'^Departements\.'), '');
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ACommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=departement_id=$cleanedDepartmentId'));
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ACommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=departement_id=$cleanedDepartmentId'));
     if (response.statusCode == 200) {
       if (response.headers['content-type']?.contains('application/json') ??
           false) {
@@ -130,7 +130,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   Future<void> fetchSections(String communeName) async {
     String encodedNom = Uri.encodeComponent(communeName);
     final response = await http.get(Uri.parse(
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ASections&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commune=%27$encodedNom%27'));
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ASections&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commune=%27$encodedNom%27'));
 
     if (response.statusCode == 200) {
       if (response.headers['content-type']?.contains('application/json') ??
@@ -165,7 +165,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
     var cleanedParcelleId;
 
     final url = Uri.parse(
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3AParcelles&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commun%20=%20%27$encodedCommuneName%27%20and%20num_sect=%27$encodedSectionNumber%27');
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3AParcelles&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commun%20=%20%27$encodedCommuneName%27%20and%20num_sect=%27$encodedSectionNumber%27');
 
     final response = await http.get(url);
     if (response.statusCode == 200) {
@@ -190,7 +190,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   //Fonction pour recupérer les données GeoJSON de la région à partir du WFS
   Future<void> fetchGeoJsonRegion(String nom) async {
     String wfsUrl =
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ARegions&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom=%27$nom%27';
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ARegions&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom=%27$nom%27';
 
     try {
       final response = await http.get(Uri.parse(wfsUrl));
@@ -218,7 +218,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   //Fonction pour recupérer les données GeoJSON du département à partir du WFS
   Future<void> fetchGeoJsonDepartement(String nom) async {
     String wfsUrl =
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ADepartements&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom=%27$nom%27';
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ADepartements&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom=%27$nom%27';
 
     try {
       final response = await http.get(Uri.parse(wfsUrl));
@@ -248,7 +248,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
     String encodedNom = Uri.encodeComponent(nom);
 
     String wfsUrl =
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ACommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commun=%27$encodedNom%27';
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ACommunes&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=nom_commun=%27$encodedNom%27';
 
     try {
       final response = await http.get(Uri.parse(wfsUrl));
@@ -276,7 +276,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
 
   Future<void> fetchGeoJsonSection(String num) async {
     String wfsUrl =
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ASections&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=numero_sec=%27$num%27';
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3ASections&maxFeatures=50&outputFormat=application%2Fjson&CQL_FILTER=numero_sec=%27$num%27';
 
     try {
       final response = await http.get(Uri.parse(wfsUrl));
@@ -305,7 +305,7 @@ class DropdownsWidgetState extends State<DropdownsWidget> {
   // Fonction pour récupérer les données GeoJSON de la parcelle à partir du WFS
   Future<void> fetchGeoJsonParcelle(String nicad) async {
     String wfsUrl =
-        'http://10.0.2.2:8080/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3AParcelles&maxFeatures=50&featureID=$nicad&outputFormat=application%2Fjson';
+        'http://192.168.1.7:8093/geoserver/data_collection/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=data_collection%3AParcelles&maxFeatures=50&featureID=$nicad&outputFormat=application%2Fjson';
 
     try {
       final response = await http.get(Uri.parse(wfsUrl));

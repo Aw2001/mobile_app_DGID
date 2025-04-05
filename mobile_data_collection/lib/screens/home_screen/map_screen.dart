@@ -115,8 +115,8 @@ class MapScreenState extends State<MapScreen> {
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          initialCenter: _currentPosition ?? const LatLng(14.6928, -14.4736),
-          initialZoom: 7.8,
+          initialCenter: _currentPosition ?? const LatLng(14.955,-14.855), 
+          initialZoom: 7, 
           interactionOptions: InteractionOptions(
             flags: InteractiveFlag.all, // Active toutes les interactions
             debugMultiFingerGestureWinner: false, // Désactive le débogage
@@ -134,9 +134,9 @@ class MapScreenState extends State<MapScreen> {
         children: [
           TileLayer(
             urlTemplate:
-                "https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&key=AIzaSyCM5PAM4S5-EPhNCuOaC5xBp2iFpVlr0o8",
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
             tileSize: 256,
-            maxZoom: 20,
+            maxZoom: 30,
             minZoom: 3,
             subdomains: [],
           ),

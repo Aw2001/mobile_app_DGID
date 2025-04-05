@@ -56,7 +56,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: const Text(
                     'TerangaCollecte',
                     style: TextStyle(
-                      fontSize: 31,
+                      fontSize: 20,
                       color: Color(0xFFC3AD65),
                     ),
                   ),

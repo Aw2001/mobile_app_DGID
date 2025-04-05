@@ -18,71 +18,46 @@ class InitState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Permet de fixer le contenu
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0.05 * screenSize.height,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                // Logo en haut
-                const SizedBox(height: 10),
-                Image.asset('assets/images/logoT.png', width: 170),
-                const SizedBox(height: 1),
-
-                // Titre principal
-               
-                // Sous-titre "Bienvenue"
-                const SizedBox(height: 1),
-                const Text(
-                  'Bienvenue',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFC3AD65),
-                  ),
-                ),
-
-                // Texte d'invitation
-                const SizedBox(height: 5),
-                const Text(
-                  'Veuillez vous connecter pour continuer',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-               
-
-              ],
-            ),
-          ),
-
-          // Contenu du formulaire en bas
-          
-          Positioned(
-            bottom: isSmallScreen
-                ? screenSize.height * 0.15
-                : screenSize.height * 0.05,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: isSmallScreen
-                  ? const _FormContent()
-                  : Container(
-                      padding: const EdgeInsets.all(32.0),
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: const _FormContent(),
+      body: SingleChildScrollView(
+        child: Container(
+          width: screenSize.width,
+          height: screenSize.height,
+          child: Stack(
+            children: [
+             
+              Positioned(
+                top: 80,
+                left: 20,
+                right: 20,
+                child: Column(
+                  
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/images/logoT.png', width: 150),
+                    Text(
+                      "Bienvenue",
+                      style: TextStyle(fontSize: 18, color: Color(0xFFC3AD65)),
                     ),
-            ),
-          )
-        ],
+                    SizedBox(height: 5),
+                    Text(
+                      'Veuillez vous connecter pour continuer',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 9,
+                        color: Colors.grey,
+                      ),
+                    ),
+
+                    SizedBox(height: 10),
+                    _FormContent(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -96,14 +71,64 @@ class _FormContent extends StatefulWidget {
 }
 
 class __FormContentState extends State<_FormContent> {
+  String initial = '';
+  String email = '';
   bool _isPasswordVisible = false;
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = "";
   LoginUtilisateur user = LoginUtilisateur("", "");
 
-  Future<void> loginUser(String email, String password) async {
-    Uri url = Uri.parse("http://10.0.2.2:8081/auth/login");
+  Future<void> retourneInitial(String username) async {
+    
+    Uri url = Uri.parse("http://192.168.1.7:8081/api/utilisateurs/initial/$username");
+    try {
+      // Récupérer le token JWT depuis le stockage local
+      final String? token = await StorageService.readData('jwt_token');
+
+      // Vérifiez si le token est null
+      if (token == null) {
+        throw Exception('Token introuvable, veuillez vous reconnecter.');
+      }
+
+      // Envoi de la requête HTTP
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+       if (response.statusCode == 200) {
+        if (response.body.isEmpty) {
+           print("aucune reponse");
+        } else {
+          String fullName = response.body; 
+        
+          // Séparation de la chaîne en mots
+          List<String> nameParts = fullName.split(','); 
+          List<String> firstNameParts = nameParts[0].split(' ');
+          List<String> secondNameParts = nameParts[1].split(' ');
+          String firstInitial = firstNameParts[0][0];
+          String secondInitial = secondNameParts[0][0];
+          
+          setState(() {
+            initial = firstInitial + secondInitial; // Mise à jour de l'état avec les initiales
+            
+          });
+          
+        }
+      } else {
+        throw Exception('Erreur serveur : ${response.statusCode}');
+      }
+      
+    } catch (e) {
+      print("Erreur : $e");
+      
+    }
+  }
+  Future<void> loginUser(String username, String password) async {
+    Uri url = Uri.parse("http://192.168.1.7:8081/auth/login");
     try {
       var response = await http.post(
         url,
@@ -111,7 +136,7 @@ class __FormContentState extends State<_FormContent> {
           'Content-Type': 'application/json',
         },
         body: json.encode({
-          'email': email,
+          'username': username,
           'password': password,
         }),
       );
@@ -119,14 +144,49 @@ class __FormContentState extends State<_FormContent> {
       if (response.statusCode == 200) {
         String token = json.decode(response.body)['token'];
         await StorageService.writeData('jwt_token', token);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen(email)),
-        );
+        retourneInitial(username);
+        Uri url1 = Uri.parse("http://192.168.1.7:8081/api/utilisateurs/getEmail/$username");
+        try {
+          // Récupérer le token JWT depuis le stockage local
+          final String? token = await StorageService.readData('jwt_token');
+
+          // Vérifiez si le token est null
+          if (token == null) {
+            throw Exception('Token introuvable, veuillez vous reconnecter.');
+          }
+
+          // Envoi de la requête HTTP
+          final response = await http.get(
+            url1,
+            headers: {
+              'Authorization': 'Bearer $token',
+              'Content-Type': 'application/json',
+            },
+          );
+          if (response.statusCode == 200) {
+            if (response.body.isEmpty) {
+              print("aucune reponse");
+            } else {
+              email = response.body;
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen(username, email, initial)),
+              );
+            }
+          } else {
+            throw Exception('Erreur serveur : ${response.statusCode}');
+          }
+          
+        } catch (e) {
+          print("Erreur : $e");
+          
+        }
+
+        
       } else {
         print("Erreur ${response.statusCode} : ${response.body}");
         setState(() {
-          _errorMessage = "Adresse email ou mot de passe incorrect."; // Message d'erreur
+          _errorMessage = "Username ou mot de passe incorrect."; // Message d'erreur
         });
       }
     } catch (e) {
@@ -142,23 +202,20 @@ class __FormContentState extends State<_FormContent> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 450),
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
              if (_errorMessage.isNotEmpty)
               Column(
                  children: [
                   Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0), // Espacement avec les champs
+                  padding: const EdgeInsets.only(bottom: 8.0), // Espacement avec les champs
                   child: Text(
                     _errorMessage,
                     style: const TextStyle(
                       color: Colors.red,
-                      fontSize: 14,
+                      fontSize: 10,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -166,9 +223,9 @@ class __FormContentState extends State<_FormContent> {
                  ] 
               ),
               
-            // Champ email
+            // Champ username
             TextFormField(
-              controller: _emailController,
+              controller: _usernameController,
               onChanged: (val) {
                 user.identifiant = val;
               },
@@ -177,18 +234,11 @@ class __FormContentState extends State<_FormContent> {
                   return 'Ce champ ne peut pas être vide';
                 }
 
-                bool emailValid = RegExp(
-                        r"^[a-zA-Z0-9.a-zA-Z0-9.!#\$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                    .hasMatch(value);
-                if (!emailValid) {
-                  return 'Veuillez saisir une adresse email valide';
-                }
-
                 return null;
               },
               decoration: const InputDecoration(
-                labelText: 'Adresse Email',
-                prefixIcon: Icon(Icons.email_outlined),
+                labelText: 'Username',
+                prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(
@@ -198,10 +248,13 @@ class __FormContentState extends State<_FormContent> {
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023),
                 ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
+                ),
               ),
             ),
-            _gap(),
-
+            
+            SizedBox(height: 10),
             // Champ mot de passe
             TextFormField(
               controller: _passwordController,
@@ -238,6 +291,9 @@ class __FormContentState extends State<_FormContent> {
                 floatingLabelStyle: const TextStyle(
                   color: Color(0xFF8c6023),
                 ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
+                ),
               ),
             ),
             _gap(),
@@ -259,6 +315,7 @@ class __FormContentState extends State<_FormContent> {
                     style: TextStyle(
                       color: Color(0xFF8c6023),
                       decoration: TextDecoration.none,
+                      fontSize: 10,
                     ),
                   ),
                 ),
@@ -275,18 +332,19 @@ class __FormContentState extends State<_FormContent> {
                   backgroundColor: const Color(0xFFC3AD65),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
+                      overlayColor: Colors.brown.withOpacity(0.2),
                 ),
                 child: const Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(5.0),
                   child: Text(
                     'Connexion',
                     style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    loginUser(_emailController.text, _passwordController.text);
+                    loginUser(_usernameController.text, _passwordController.text);
                   }
                 },
               ),
@@ -298,7 +356,7 @@ class __FormContentState extends State<_FormContent> {
                 children: [
                   const Text(
                     "Vous n'avez pas de compte ? ",
-                    style: TextStyle(fontSize: 14.0),
+                    style: TextStyle(fontSize: 10.0),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -308,7 +366,7 @@ class __FormContentState extends State<_FormContent> {
                         PageRouteBuilder(
                           pageBuilder: (context, animation, secondaryAnimation) => SignUpScreen(),
                           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                            return child; // Pas d'animation, affichage instantané
+                            return child; 
                           },
                         ),
                       );
@@ -316,7 +374,7 @@ class __FormContentState extends State<_FormContent> {
                     child: const Text(
                       "Créer un compte",
                       style: TextStyle(
-                        fontSize: 14.0,
+                        fontSize: 10.0,
                         color: Color(0xFF8c6023),
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,

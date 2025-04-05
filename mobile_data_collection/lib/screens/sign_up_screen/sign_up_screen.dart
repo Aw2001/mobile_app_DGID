@@ -19,53 +19,41 @@ class InitState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final bool isSmallScreen = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false, //permettre de fixer le contenu
-      body: Stack(
-        children: [
-          Positioned(
-            top: 0.05 * screenSize.height,
-            left: 0,
-            right: 0,
-            child: Column(
-              children: [
-                // Logo en haut
-                const SizedBox(height: 10),
-                Image.asset('assets/images/logoT.png', width: 170),
-
-                const Text(
-                  'Création de compte',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFC3AD65),
-                  ),
-                ),
-               
-
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: isSmallScreen
-                ? screenSize.height * 0.15
-                : screenSize.height * 0.004,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: isSmallScreen
-                  ? const _FormContent()
-                  : Container(
-                      padding: const EdgeInsets.all(32.0),
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: const _FormContent(),
+      body: SingleChildScrollView(
+        child: Container(
+          width: screenSize.width,
+          height: screenSize.height,
+          child: Stack(
+            children: [
+              Positioned(
+                top: 50,
+                left: 20,
+                right: 20,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Logo en haut
+                    Image.asset('assets/images/logoT.png', width: 150),
+                    Text(
+                      'Création de compte',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFFC3AD65),
+                      ),
                     ),
-            ),
-          )
-        ],
+                    SizedBox(height: 10),
+                    _FormContent(),
+                  ],
+                ),
+              ),
+              
+            ],
+          ),
+        ),
       ),
+      
     );
   }
 }
@@ -79,6 +67,8 @@ class _FormContent extends StatefulWidget {
 
 class __FormContentState extends State<_FormContent> {
   bool _isPasswordVisible = false;
+  String _errorMessage = "Après validation veuillez patientez svp!";
+  String _errorCode = "";
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _prenomController = TextEditingController();
@@ -88,50 +78,65 @@ class __FormContentState extends State<_FormContent> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<void> SignUpUser(String email, String prenom, String nom, String password) async {
-  Uri url = Uri.parse("http://10.0.2.2:8081/auth/signup");
-  try {
-    var response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json', // Assurez-vous que le type est correct
-      },
-      body: json.encode({
-        'email': email,
-        'prenom': prenom,
-        'nom': nom,
-        'username': '',
-        'password': password,
-        'role': ''
-      }),
-    );
-
-    if (response.statusCode == 200) {
-    
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => OtpPageScreen(email: email,)),
+  Future<void> SignUpUser(String email, String prenom, String nom, String username, String password) async {
+    Uri url = Uri.parse("http://192.168.1.7:8081/auth/signup");
+    try {
+      var response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json', // Assurez-vous que le type est correct
+        },
+        body: json.encode({
+          'email': email,
+          'prenom': prenom,
+          'nom': nom,
+          'username': username,
+          'password': password,
+          'role': ''
+        }),
       );
-    } else {
-      print("Erreur ${response.statusCode} : ${response.body}");
+
+      if (response.statusCode == 200) {
+      
+        _errorCode = 'Code de vérification envoyé !';
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => OtpPageScreen(email: _emailController.text, message: _errorCode),),
+        );
+      } else {
+        print("Erreur ${response.statusCode} : ${response.body}");
+        setState(() {
+            _errorMessage = "le code n'a pas pu être envoyé"; // Message d'erreur
+          });
+      }
+    } catch (e) {
+      print("Erreur : $e");
     }
-  } catch (e) {
-    print("Erreur : $e");
-  }
 }
 
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(maxWidth: 450),
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            if (_errorMessage.isNotEmpty)
+              Column(
+                 children: [
+                   Text(
+                    _errorMessage,
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 9,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  
+                 ] 
+              ),
+              SizedBox(height: 8),
             TextFormField(
               controller: _emailController,
               validator: (value) {
@@ -159,6 +164,9 @@ class __FormContentState extends State<_FormContent> {
                 )),
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023), // Couleur du label en focus
+                ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
                 ),
               ),
             ),
@@ -193,6 +201,9 @@ class __FormContentState extends State<_FormContent> {
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023), // Couleur du label en focus
                 ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
+                ),
               ),
             ),
             _gap(),
@@ -226,6 +237,37 @@ class __FormContentState extends State<_FormContent> {
                 floatingLabelStyle: TextStyle(
                   color: Color(0xFF8c6023), // Couleur du label en focus
                 ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
+                ),
+              ),
+            ),
+            _gap(),
+             TextFormField(
+              controller: _usernameController,
+              validator: (val) {
+                    if(val == null || val.isEmpty) {
+                      return 'Ce champ ne peut pas être vide';
+                    }
+                    else {
+                      return null;
+                    }
+                    
+                  },
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.person),
+                labelText: 'Username',
+                border: OutlineInputBorder(),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                  color: Color(0xFF8c6023),
+                )),
+                floatingLabelStyle: TextStyle(
+                  color: Color(0xFF8c6023), // Couleur du label en focus
+                ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
+                ),
               ),
             ),
             _gap(),
@@ -234,8 +276,8 @@ class __FormContentState extends State<_FormContent> {
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Ce champ ne peut pas être vide';
-                } else if (value.length < 6) {
-                  return 'Le mot de passe doit au moins contenir 6 caractères';
+                } else if (value.length < 4) {
+                  return 'Le mot de passe doit au moins contenir 4 caractères';
                 } else {
                   return null;
                 }
@@ -262,6 +304,9 @@ class __FormContentState extends State<_FormContent> {
                 floatingLabelStyle: const TextStyle(
                   color: Color(0xFF8c6023),
                 ),
+                labelStyle: TextStyle(
+                  fontSize: 12, 
+                ),
               ),
             ),
             _gap(),
@@ -271,19 +316,21 @@ class __FormContentState extends State<_FormContent> {
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
                   backgroundColor: Color(0xFFC3AD65),
+                  overlayColor: Colors.brown.withOpacity(0.2),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(4)),
                 ),
                 child: const Padding(
-                  padding: EdgeInsets.all(10.0),
+                  padding: EdgeInsets.all(5.0),
                   child: Text(
                     'Créer un compte',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    SignUpUser(_emailController.text, _prenomController.text, _nomController.text, _passwordController.text);
+                    
+                    SignUpUser(_emailController.text, _prenomController.text, _nomController.text, _usernameController.text, _passwordController.text);
                   }
                 },
               ),
@@ -295,10 +342,11 @@ class __FormContentState extends State<_FormContent> {
                 children: [
                   const Text(
                     "Vous avez un compte ? ",
-                    style: TextStyle(fontSize: 14.0),
+                    style: TextStyle(fontSize: 10.0),
                   ),
                   GestureDetector(
                     onTap: () {
+                      
                       // Redirection vers la page de création de compte
                       Navigator.push(
                         context,
@@ -313,7 +361,7 @@ class __FormContentState extends State<_FormContent> {
                     child: const Text(
                       "Se connecter",
                       style: TextStyle(
-                        fontSize: 14.0,
+                        fontSize: 10.0,
                         color: Color(0xFF8c6023),
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
@@ -329,5 +377,5 @@ class __FormContentState extends State<_FormContent> {
     );
   }
 
-  Widget _gap() => const SizedBox(height: 16);
+  Widget _gap() => const SizedBox(height: 10);
 }

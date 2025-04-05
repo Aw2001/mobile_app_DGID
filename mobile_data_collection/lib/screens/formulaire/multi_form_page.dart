@@ -1,18 +1,13 @@
 
 import 'package:mobile_data_collection/model/recensement.dart';
-import 'package:mobile_data_collection/screens/formulaire/custom_form_field.dart';
 import 'package:mobile_data_collection/screens/formulaire/expansion_panel_bienn.dart';
 import 'package:mobile_data_collection/screens/formulaire/expansion_panel_locataire.dart';
 import 'package:mobile_data_collection/screens/formulaire/expansion_panel_proprietaire.dart';
 import 'package:mobile_data_collection/screens/formulaire/field_bienn.dart';
 import 'package:mobile_data_collection/screens/formulaire/field_locataire.dart';
 import 'package:mobile_data_collection/screens/formulaire/field_proprietaire.dart';
-import 'package:mobile_data_collection/screens/home_screen/navbar_screen.dart';
-import 'package:mobile_data_collection/screens/welcome_screen.dart';
-import 'package:mobile_data_collection/service/proprietaire_service.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
 import 'package:mobile_data_collection/utils/exports.dart';
-import 'package:mobile_data_collection/utils/extensions.dart';
 
 class MultiFormPage extends StatefulWidget {
   final Recensement recensement;
@@ -254,7 +249,7 @@ class MultiFormPage extends StatefulWidget {
           key: ValueKey(newIndex), // Utilisation d'une clé basée sur newIndex
           children: [
             ExpansionPanelListExampleBien(
-              headerValue: 'Informations du local',
+              headerValue: 'Infos du local',
               nbItems: nbItemsForBien,
               onDelete: () {
                 setState(() {
@@ -298,7 +293,7 @@ class MultiFormPage extends StatefulWidget {
           key: ValueKey(newIndex), // Utilisation d'une clé basée sur newIndex
           children: [
             ExpansionPanelListExampleProprietaire(
-              headerValue: 'Informations du propriétaire',
+              headerValue: 'Infos du propriétaire',
               nbItems: nbItemsForProprietaire,
               onDelete: () {
                 setState(() {
@@ -339,7 +334,7 @@ class MultiFormPage extends StatefulWidget {
           key: ValueKey(newIndex), // Utilisation d'une clé basée sur newIndex
           children: [
             ExpansionPanelListExampleLocataire(
-              headerValue: 'Informations du locataire',
+              headerValue: 'Infos du locataire',
               nbItems: nbItemsForLocataire,
               onDelete: () {
                 setState(() {
@@ -394,29 +389,7 @@ class MultiFormPage extends StatefulWidget {
   @override
   void initState() {
     super.initState();
-    // listOfControllersBien.add(controllers);
-    // panelsBien.add(
-    //     Column(
-    //       key: ValueKey(0), // Utilisation d'une clé basée sur newIndex
-    //       children: [
-    //         ExpansionPanelListExampleBien(
-    //           headerValue: 'Informations du local',
-    //           nbItems: nbItemsForBien,
-    //           onDelete: () {
-    //             setState(() {
-    //               // Supprimer le panel et son contrôleur associé
-    //               panelsBien.removeWhere((panel) => panel.key == ValueKey(0));
-    //               listOfControllersBien.removeAt(0);
-    //               nbItemsForBien--;
-    //             });
-    //           },
-    //           recensement: widget.recensement,
-    //           controllers: listOfControllersBien[0], // Associer au contrôleur créé
-    //           fieldsBien: fieldsBien,
-    //         ),
-    //       ],
-    //     ),
-    //   );
+    
   } 
   void decrementNbItemsForBien() {
     setState(() {
@@ -445,9 +418,16 @@ class MultiFormPage extends StatefulWidget {
   //list of steps
   List<Step> steps() => [
     Step(
+      stepStyle: StepStyle(
+        indexStyle: TextStyle(fontSize: 8, color: Colors.white), // Réduit la taille du numéro
+        
+       ),
       state: currentStep > 0 ? StepState.complete : StepState.indexed,
       isActive: currentStep >= 0,
-      title: const Text("Proprietaire"),
+      title: const Text(
+        "Proprietaire",
+        style: TextStyle(fontSize: 10),
+      ),
       content: SingleChildScrollView(
         child: Form(
           key: _formKeys[0],
@@ -469,10 +449,9 @@ class MultiFormPage extends StatefulWidget {
                   },
                   backgroundColor: Color.fromARGB(255, 148, 92, 34),
                   label: const Text(
-                    "Ajouter un propriétaire",
-                    style: TextStyle(color: Colors.white),
+                    "Ajouter",
+                    style: TextStyle(color: Colors.white, fontSize: 12),
                   ),
-                  icon: Icon(Icons.add, color: Colors.white),
                 ),
                 ),
             ],
@@ -483,9 +462,13 @@ class MultiFormPage extends StatefulWidget {
       
     ),
     Step(
+      stepStyle: StepStyle(indexStyle: TextStyle(fontSize: 8, color: Colors.white)),
       state: currentStep > 1 ? StepState.complete : StepState.indexed,
       isActive: currentStep >= 1,
-      title: const Text("Local"),
+      title: const Text(
+        "Local",
+        style: TextStyle(fontSize: 10),
+        ),
       content: Form(
         key: _formKeys[1],
         child: Column(
@@ -506,10 +489,9 @@ class MultiFormPage extends StatefulWidget {
                 },
                 backgroundColor: Color.fromARGB(255, 148, 92, 34),
                 label: const Text(
-                  "Ajouter un local",
-                  style: TextStyle(color: Colors.white),
+                  "Ajouter",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
-                icon: Icon(Icons.add, color: Colors.white),
               ),
               ),
             
@@ -518,9 +500,13 @@ class MultiFormPage extends StatefulWidget {
       ),
     ),
     Step(
+      stepStyle: StepStyle(indexStyle: TextStyle(fontSize: 8, color: Colors.white)),
       state: currentStep > 2 ? StepState.complete : StepState.indexed,
       isActive: currentStep >= 2,
-      title: Text("Locataire"),
+      title: Text(
+        "Locataire",
+        style: TextStyle(fontSize: 10),
+        ),
       content: SingleChildScrollView(
         child:Form(
         key: _formKeys[2],
@@ -542,10 +528,9 @@ class MultiFormPage extends StatefulWidget {
                 },
                 backgroundColor: Color.fromARGB(255, 148, 92, 34),
                 label: const Text(
-                  "Ajouter un locataire",
-                  style: TextStyle(color: Colors.white),
+                  "Ajouter",
+                  style: TextStyle(color: Colors.white, fontSize: 12),
                 ),
-                icon: Icon(Icons.add, color: Colors.white),
               ),
               ),
           ],
@@ -565,16 +550,9 @@ class MultiFormPage extends StatefulWidget {
         
         backgroundColor: kBackgroundColor,
         elevation: 1,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Color(0xFF8c6023),
-          ),
-          onPressed: () {},
-        ),
         titleSpacing: 0,
         title: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.only(right: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -583,7 +561,7 @@ class MultiFormPage extends StatefulWidget {
                 style: TextStyle(
                   color: Color(0xFFC3AD65),
                   fontWeight: FontWeight.w500,
-                  fontSize: 18,
+                  fontSize: 16,
                 ),
               ),
             ],
@@ -609,55 +587,82 @@ class MultiFormPage extends StatefulWidget {
               if(_formKeys[currentStep].currentState!.validate()) {
                 if(isLastStep) {
                   setState(() => isComplete = true);
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                       
-                        title: const Text('Confirmation'),
-                        content: const Text('Voulez-vous confirmer les informations saisies ?'),
-                        actions: [
-                          TextButton(
-                           
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: const Color.fromRGBO(195, 173, 101, 1), 
+                  if(panelsBien.isNotEmpty || panelsProprietaire.isNotEmpty || panelsLocataire.isNotEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          titleTextStyle: TextStyle(fontSize: 12),
+                          title: const Text('Confirmation'),
+                          content: const Text('Voulez-vous confirmer les informations saisies ?'),
+                          actions: [
+                            TextButton(
                             
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color.fromRGBO(195, 173, 101, 1), 
+                              
+                              ),
+                              child: const Text('Annuler'),
+                              
                             ),
-                            child: const Text('Annuler'),
-                            
-                          ),
-                          TextButton(
-                            
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              ajouterInfos();
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: const Color.fromRGBO(195, 173, 101, 1), 
-                            
+                            TextButton(
+                              
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                ajouterInfos();
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color.fromRGBO(195, 173, 101, 1), 
+                              
+                              ),
+                              child: const Text('Confirmer'),
+                              
                             ),
-                            child: const Text('Confirmer'),
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                        
+                          title: const Text('Aucune information n\'a été saisie', style: TextStyle(fontSize: 12),),
+                          actions: [
+                            TextButton(
                             
-                          ),
-                        ],
-                      );
-                    },
-                  );
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color.fromRGBO(195, 173, 101, 1), 
+                              
+                              ),
+                              child: const Text('Quitter', style: TextStyle(fontSize: 12)),
+                              
+                            ),
+                            
+                          ],
+                        );
+                      },
+                    );
+                  }
+                  
                 } else {
                   setState(() => currentStep += 1);
                   
                 }
               } else {
-                print("zzzzzzzzzzzzzzz");
               }
               
             },
             onStepCancel: 
               isFirstStep ? null : () => setState(() => currentStep -= 1),
-            onStepTapped: (step) => setState(() => currentStep = step),
+            onStepTapped: (step) {},
             controlsBuilder: (context, details) => Padding(
               padding: const EdgeInsets.only(top: 32),
               child: Row(
@@ -666,14 +671,14 @@ class MultiFormPage extends StatefulWidget {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: isFirstStep ? null : details.onStepCancel, 
-                        child: const Text('Retour'))
+                        child: const Text('Retour', style: TextStyle(fontSize: 12),))
                     ),
                   ],
                   const SizedBox(width: 16),
                   Expanded(
                     child: ElevatedButton(
                       onPressed: details.onStepContinue, 
-                      child: Text (isLastStep ? 'Terminer' : 'Suivant'),
+                      child: Text (isLastStep ? 'Terminer' : 'Suivant', style: TextStyle(fontSize: 12)),
                     ),
                   ),
                   

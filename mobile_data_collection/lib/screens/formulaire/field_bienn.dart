@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_data_collection/model/bien.dart';
 import 'package:mobile_data_collection/model/recensement.dart';
 import 'package:mobile_data_collection/screens/formulaire/custom_form_field.dart';
-import 'package:mobile_data_collection/screens/formulaire/multi_form_page.dart';
 import 'package:mobile_data_collection/service/bien_service.dart';
 import 'package:mobile_data_collection/service/commune_service.dart';
 import 'package:mobile_data_collection/service/departement_service.dart';
@@ -51,7 +50,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
       'NNN',
      
     ]);
-  final BienService bienService = BienService("http://10.0.2.2:8081/api/biens");
+  final BienService bienService = BienService("http://192.168.1.7:8081/api/biens");
 
   List<XFile> _imageFiles = [];
   bool allValuesValid = true;
@@ -377,7 +376,6 @@ class BuildFieldBienState extends State<BuildFieldBien> {
   void fetchParcelles(String? sectionNumSec, String? region, String? nomDepart, String? nomCommun) {
     ParcelleService parcelleService = ParcelleService();
     Future<List<String>> parcelles = parcelleService.listerParcelles(sectionNumSec, region, nomDepart, nomCommun);
-    print("MATAYAYYYYYYYYYYYYYY");
     try {
       setState(() {
         dropdownItems["nicad"] = parcelles;
@@ -438,11 +436,11 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                           final items = snapshot.data!;
                         return DropdownButtonFormField<String>(
                           value: widget.dropDownBien[fieldKey],
-                          hint: Text(labelText!),
+                          hint: Text(labelText!, style: TextStyle(fontSize: 10),),
                           items: items.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
-                              child: Text(value),
+                              child: Text(value, style: TextStyle(fontSize: 10),),
                             );
                           }).toList(),
                           onChanged: (String? newValue) {
@@ -573,14 +571,14 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                     children: [
                       Text(
                         labelText!,
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400),
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Sélectionner des images',
-                            style: TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 10),
                           ),
                           GestureDetector(
                             onTap: () async {
@@ -602,8 +600,8 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               }
                             },
                             child: Container(
-                              width: 50,
-                              height: 50,
+                              width: 25,
+                              height: 25,
                               decoration: BoxDecoration(
                                 color: Color(0xFFC3AD65),
                                 borderRadius: BorderRadius.circular(12),
@@ -611,7 +609,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               child: Icon(
                                 Icons.file_upload,
                                 color: Colors.white,
-                                size: 30,
+                                size: 18,
                               ),
                             ),
                           ),
@@ -673,13 +671,13 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                       children: [
                         Text(
                           labelText!,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                          style: TextStyle(fontSize: 10, fontWeight: FontWeight.w400),
                         ),
                       Row(
                         children: ["Oui", "Non"].map((option) {
                           return Flexible(
                             child: RadioListTile<String>(
-                              title: Text(option),
+                              title: Text(option, style: TextStyle(fontSize:10),),
                               value: option,
                               groupValue: widget.radioBien[fieldKey],
                               onChanged: (String? value) {
@@ -708,7 +706,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             CheckboxListTile(
-                              title: Text("Jardin"),
+                              title: Text("Jardin", style: TextStyle(fontSize: 10),),
                               value: isJardinSelected,
                               onChanged: (bool? value) {
                                 setState(() {
@@ -718,7 +716,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               },
                             ),
                             CheckboxListTile(
-                              title: Text("Piscine"),
+                              title: Text("Piscine", style: TextStyle(fontSize: 10),),
                               value: isPiscineSelected,
                               onChanged: (bool? value) {
                                 setState(() {
@@ -728,7 +726,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               },
                             ),
                             CheckboxListTile(
-                              title: Text("Cours de tennis"),
+                              title: Text("Cours de tennis", style: TextStyle(fontSize: 10),),
                               value: isCoursTennisSelected,
                               onChanged: (bool? value) {
                                 setState(() {
@@ -739,7 +737,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               },
                             ),
                             CheckboxListTile(
-                              title: Text("Cours gazonnée"),
+                              title: Text("Cours gazonnée", style: TextStyle(fontSize: 10),),
                               value: isCoursGazonneeSelected,
                               onChanged: (bool? value) {
                                 setState(() {
@@ -750,7 +748,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               },
                             ),
                             CheckboxListTile(
-                              title: Text("Terrain de golf privé"),
+                              title: Text("Terrain de golf privé", style: TextStyle(fontSize: 10),),
                               value: isTerrainGolfSelected,
                               onChanged: (bool? value) {
                                 setState(() {
@@ -761,7 +759,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                               },
                             ),
                             CheckboxListTile(
-                              title: Text("Autre"),
+                              title: Text("Autre", style: TextStyle(fontSize: 10),),
                               value: isAutreSelected,
                               onChanged: (bool? value) {
                                 setState(() {

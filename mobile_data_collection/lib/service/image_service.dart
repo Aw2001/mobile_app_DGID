@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 class ImageService {
-  static const String _baseUrl = 'http://10.0.2.2:8081/api/images';
+  static const String _baseUrl = 'http://192.168.1.7:8081/api/images';
 
   Future<void> ajouterImage(String? identifiantBien, List<XFile> files) async {
     for (XFile xfile in files) {

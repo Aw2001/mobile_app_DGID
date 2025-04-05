@@ -4,7 +4,7 @@ import 'package:mobile_data_collection/service/storage_service.dart';
 
 class DepartementService {
   static const String _baseUrl =
-      'http://10.0.2.2:8081/api/departements/byRegion';
+      'http://192.168.1.7:8081/api/departements/byRegion';
 
   // Méthode pour récupérer les departements
   Future<List<String>> listerDepartements(String? regionName) async {

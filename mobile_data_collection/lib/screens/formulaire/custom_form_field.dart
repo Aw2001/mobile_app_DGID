@@ -21,11 +21,13 @@ class CustomFormField extends StatelessWidget {
   final VoidCallback? onTap; 
   final void Function(String?)? onChange;
 
+  
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: TextFormField(
+        style: TextStyle(fontSize: 10),
         maxLines: maxLines,
         controller: controller,
         inputFormatters: inputFormatters,
@@ -33,7 +35,8 @@ class CustomFormField extends StatelessWidget {
         cursorColor: Color(0xFFC3AD65),
         readOnly: labelText == "region" || labelText == "departement" || labelText == "commune" || labelText == "section",
         decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
+          errorStyle: TextStyle(fontSize: 10),
+          contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 12.0),
           labelText: labelText,
           filled: true,
           fillColor: const Color.fromARGB(255, 255, 254, 251),
@@ -46,8 +49,8 @@ class CustomFormField extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(8.0)),
             borderSide: BorderSide(color: Colors.grey),
           ),
-          floatingLabelStyle: const TextStyle(color: Color(0xFFC3AD65)),
-          labelStyle: const TextStyle(color: Colors.grey),
+          floatingLabelStyle: const TextStyle(color: Color(0xFFC3AD65), fontSize: 10),
+          labelStyle: const TextStyle(color: Colors.grey, fontSize: 10),
           suffixIcon: suffixIcon,
         ),
         onChanged: onChange,

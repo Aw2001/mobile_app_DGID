@@ -1,6 +1,5 @@
 import 'package:mobile_data_collection/model/locataire.dart';
 import 'package:mobile_data_collection/screens/formulaire/custom_form_field.dart';
-import 'package:mobile_data_collection/screens/formulaire/multi_form_page.dart';
 import 'package:mobile_data_collection/service/locataire_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +17,7 @@ class BuildFieldLocataire extends StatefulWidget {
 }
 
 class BuildFieldLocataireState extends State<BuildFieldLocataire> {
-  final LocataireService locataireService = LocataireService("http://10.0.2.2:8081/api/locataires");
+  final LocataireService locataireService = LocataireService("http://192.168.1.7:8081/api/locataires");
   bool allValuesValid = true;
 
   // Dropdown options for specific fields
@@ -115,11 +114,11 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
                   width: constraints.maxWidth - 18.0, // Prend toute la largeur disponible du parent
                   child: DropdownButtonFormField<String>(
                     value: widget.dropdownLocataire[fieldKey],
-                    hint: Text(labelText!),
+                    hint: Text(labelText!, style: TextStyle(fontSize: 10),),
                     items: dropdownItems[fieldKey]!.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
-                        child: Text(value),
+                        child: Text(value, style: TextStyle(fontSize: 10),),
                       );
                     }).toList(),
                     onChanged: (String? newValue) {
