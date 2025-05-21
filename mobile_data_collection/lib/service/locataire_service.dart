@@ -1,52 +1,35 @@
 import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_data_collection/model/locataire.dart';
+import 'package:mobile_data_collection/service/dio_client.dart';
 import 'package:mobile_data_collection/service/storage_service.dart';
+import 'package:mobile_data_collection/utils/constants.dart';
 
 class LocataireService {
-  String baseUrl;
-  LocataireService(this.baseUrl);
+  final Dio _dio = DioClient().dio;
+  LocataireService();
 
   Future<void> ajouterLocataire(String? matricule, Locataire locataire) async {
-    final url = Uri.parse('$baseUrl/add?matricule=$matricule');
-    // Récupérer le token depuis le stockage sécurisé
-    final String? token = await StorageService.readData('jwt_token');
 
-    if (token == null) {
-      throw Exception('Token introuvable, veuillez vous reconnecter.');
-    }
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(locataire.toJson()),
+    final response = await _dio.post(
+      "http://$ip:8081/api/locataires/add?matricule=$matricule",
+      data: locataire.toJson(),  // Le corps de la requête
     );
 
     if (response.statusCode != 200) {
-      throw Exception("Erreur serveur : ${response.body}");
+      throw Exception("Erreur serveur : ${response.data}");
     }
   }
 
   Future<void> mettreAJourLocataire(Locataire locataire) async {
-    final url = Uri.parse('$baseUrl/update');
-    final String? token = await StorageService.readData('jwt_token');
-
-    if (token == null) {
-      throw Exception('Token introuvable, veuillez vous reconnecter.');
-    }
-    final response = await http.put(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
-      },
-      body: jsonEncode(locataire.toJson()),
+     final response = await _dio.post(
+      "http://$ip:8081/api/locataires/update",
+      data: locataire.toJson(),  // Le corps de la requête
     );
 
     if (response.statusCode != 200) {
-      throw Exception("Erreur serveur : ${response.body}");
+      throw Exception("Erreur serveur : ${response.data}");
     }
   }
 
@@ -55,22 +38,11 @@ class LocataireService {
     if (id == null) {
       throw Exception('L\'ID du locataire ne peut pas être nul');
     }
-    final url = Uri.parse('$baseUrl/research/$id');
     try {
-      final String? token = await StorageService.readData('jwt_token');
-
-      if (token == null) {
-        throw Exception('Token introuvable, veuillez vous reconnecter.');
-      }
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json'
-        },
-      );
+      
+      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/locataires/research/$id");
       if (response.statusCode == 200) {
-        if (response.body.isEmpty) {
+        if (response.data == null || response.data.toString().isEmpty) {
           return 0;
         } else {
           return 1;

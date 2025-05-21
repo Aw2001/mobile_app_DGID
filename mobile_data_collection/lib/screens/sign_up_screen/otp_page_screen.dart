@@ -22,8 +22,8 @@ class OtpPageState extends State<OtpPageScreen> {
  
   VerifyUserDto user = VerifyUserDto("", "");
   
-  Future<void> VerifyUser(String email, String code) async {
-  Uri url = Uri.parse("http://192.168.1.7:8081/auth/verify");
+  Future<void> verifyUser(String email, String code) async {
+  Uri url = Uri.parse("http://teranga-gestion.kheush.xyz:8081/auth/verify");
   try {
     var response = await http.post(
       url,
@@ -57,22 +57,23 @@ class OtpPageState extends State<OtpPageScreen> {
   Widget build(BuildContext context) {
     
     final defaultPinTheme = PinTheme(
-      width: 56,
-      height: 60,
+      width: 46,
+      height: 50,
       textStyle: const TextStyle(
-        fontSize: 22,
+        fontSize: 14,
         color: Colors.black,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: const Color.fromARGB(255, 228, 224, 201),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.transparent),
       ),
     );
     return Scaffold(
+      
       appBar: AppBar(
         
-        backgroundColor: kBackgroundColor,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         titleSpacing: 0,
         title: Padding(
@@ -85,7 +86,7 @@ class OtpPageState extends State<OtpPageScreen> {
                 style: const TextStyle(
                   color: Color(0xFFC3AD65),
                   fontWeight: FontWeight.w500,
-                  fontSize: 18,
+                  fontSize: 14,
                 ),
               ),
             ],
@@ -95,7 +96,7 @@ class OtpPageState extends State<OtpPageScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Container(
-          margin: const EdgeInsets.only(top: 40),
+          margin: const EdgeInsets.only(top: 20),
           width: double.infinity,
           child: Column(
             children: [
@@ -103,17 +104,17 @@ class OtpPageState extends State<OtpPageScreen> {
                 "Verification",
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 28,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Container(
-                margin: const EdgeInsets.symmetric(vertical: 40),
+                margin: const EdgeInsets.symmetric(vertical: 20),
                 child: const Text(
                   "Renseigner le code envoyé à votre adresse email",
                   style: TextStyle(
                     color: Colors.grey,
-                    fontSize: 18,
+                    fontSize: 14,
                   ),
                 ),
               ),
@@ -124,7 +125,7 @@ class OtpPageState extends State<OtpPageScreen> {
                   fontSize: 14,
                 ),
               ),
-              SizedBox(height: 5,),
+              SizedBox(height: 5),
               Pinput(
                 controller: _codeController,
                 length: 6,
@@ -137,13 +138,13 @@ class OtpPageState extends State<OtpPageScreen> {
                 onCompleted: (pin) => debugPrint(pin),
                 
               ),
-              const SizedBox(height: 40), // Espacement avant le bouton
+              const SizedBox(height: 20), // Espacement avant le bouton
               ElevatedButton(
                 onPressed: () {
                   String code = _codeController.text;
                   if (code.isNotEmpty) {
                     // Appel à la fonction de validation
-                    VerifyUser(widget.email, code);
+                    verifyUser(widget.email, code);
                   } else {
                     // Afficher un message d'erreur si le code est vide
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -153,9 +154,7 @@ class OtpPageState extends State<OtpPageScreen> {
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Color(0xFFC3AD65), // Couleur du bouton
-                  padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  backgroundColor: Color(0xFFC3AD65), // Couleur du bouto                  textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                 ),
                 child: const Text("Valider le code"),
               ),

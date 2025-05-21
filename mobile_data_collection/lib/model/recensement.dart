@@ -8,10 +8,11 @@ class Recensement {
   String? dateDebut;
   String? dateFin;
   String commentaire;
-  String? region;
-  String? departement;
-  String? commune;
-  String? section;
+  String region;
+  String departement;
+  String commune;
+  String section;
+  String titre;
   String dateCreation;
   
 
@@ -24,10 +25,11 @@ class Recensement {
     this.dateDebut,
     this.dateFin,
     required this.commentaire,
-    this.region,
-    this.departement,
-    this.commune,
-    this.section,
+    required this.region,
+    required this.departement,
+    required this.commune,
+    required this.section,
+    required this.titre,
     required this.dateCreation
    
   });
@@ -46,6 +48,7 @@ class Recensement {
       departement: json['departement'] ?? "Rufisque",
       commune: json['commune'] ?? "Rufisque Est",
       section: json['section'] ?? "006",
+      titre: json['titre'] ?? "Nom inconnu",
       dateCreation: json['dateCreation'] ?? "2024-01-05"
       
     );
@@ -64,6 +67,7 @@ class Recensement {
       'departement': departement,
       'commune': commune,
       'section': section,
+      'titre': titre,
       'dateCreation': dateCreation
       
     };

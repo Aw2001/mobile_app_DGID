@@ -13,6 +13,8 @@ import 'package:mobile_data_collection/service/parcelle_service.dart';
 import 'package:mobile_data_collection/service/section_service.dart';
 import 'package:mobile_data_collection/utils/extensions.dart';
 
+import '../../utils/constants.dart';
+
 class BuildFieldBien extends StatefulWidget {
   final Recensement recensement;
   final List<Map<String, String>> fieldsBien;
@@ -50,7 +52,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
       'NNN',
      
     ]);
-  final BienService bienService = BienService("http://192.168.1.7:8081/api/biens");
+  final BienService bienService = BienService();
 
   List<XFile> _imageFiles = [];
   bool allValuesValid = true;
@@ -151,7 +153,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
   void ajouterBien(Map<String, TextEditingController> controllerBien, Map<String, String?> dropdown, Map<String, String?> radio, Recensement recensementId) async {
     ImageService imageService = ImageService();
      controllerBien.forEach((key, controller) {
-        String? value = controller.text;
+        String? value = controller.text.trim();
 
         if (value == null) {
           print('Clé: $key, Valeur: (nulle)');
@@ -164,141 +166,139 @@ class BuildFieldBienState extends State<BuildFieldBien> {
     if (allValuesValid == true) {
       final Bien bienData = Bien(
       // Autres champs récupérés des contrôleurs
-      idProprietaire: controllerBien["numIdentifiantProprietaire"]?.text,
+      idProprietaire: controllerBien["numIdentifiantProprietaire"]?.text.trim(),
       idParcelle:
-          dropdown["nicad"] ?? controllerBien["nicad"]?.text,
-      nomRue: controllerBien["nomRue"]?.text ,
-      codeDeRueAdm: controllerBien["codeRue"]?.text  ,
-      quartier: controllerBien["quartier"]?.text ,
-      village: controllerBien["village"]?.text ,
+          dropdown["nicad"] ?? controllerBien["nicad"]?.text.trim(),
+      nomRue: controllerBien["nomRue"]?.text.trim() ,
+      codeDeRueAdm: controllerBien["codeRue"]?.text.trim()  ,
+      quartier: controllerBien["quartier"]?.text.trim() ,
+      village: controllerBien["village"]?.text.trim() ,
       typeParcelle: dropdown["typeParcelle"] ??
-          controllerBien["typeParcelle"]?.text ,
-      identifiant: controllerBien["identifiant"]?.text ,
-      nomVoirie: controllerBien["nomVoirie"]?.text ,
+          controllerBien["typeParcelle"]?.text.trim() ,
+      identifiant: controllerBien["identifiant"]?.text.trim() ,
+      nomVoirie: controllerBien["nomVoirie"]?.text.trim() ,
       typeVoirie: dropdown["typeVoirie"] ??
-          controllerBien["typeVoirie"]?.text ,
-      nomAutreVoirie: controllerBien["nomAutreVoirie"]?.text ,
+          controllerBien["typeVoirie"]?.text.trim() ,
+      nomAutreVoirie: controllerBien["nomAutreVoirie"]?.text.trim() ,
       typeLot:
-          dropdown["typeLot"] ?? controllerBien["typeLot"]?.text ,
+          dropdown["typeLot"] ?? controllerBien["typeLot"]?.text.trim() ,
       localisationLot: dropdown["localisationLot"] ??
-          controllerBien["localisationLot"]?.text ,
+          controllerBien["localisationLot"]?.text.trim() ,
       situationLot: dropdown["situationLot"] ??
-          controllerBien["situationLot"]?.text ,
-      numLot: controllerBien["numeroLot"]?.text ,
-      niveauLot: int.tryParse(controllerBien["niveauLot"]?.text ?? "0"),
-      numPorteAdm: controllerBien["numeroPorte"]?.text ,
-      adresse: controllerBien["adresse"]?.text ,
-      superficie: double.tryParse(controllerBien["superficie"]?.text ?? "0"),
-      typeOccupation: controllerBien["typeOccupation"]?.text ,
+          controllerBien["situationLot"]?.text.trim() ,
+      numLot: controllerBien["numeroLot"]?.text.trim() ,
+      niveauLot: int.tryParse(controllerBien["niveauLot"]?.text.trim() ?? "0"),
+      numPorteAdm: controllerBien["numeroPorte"]?.text.trim() ,
+      adresse: controllerBien["adresse"]?.text.trim() ,
+      superficie: double.tryParse(controllerBien["superficie"]?.text.trim() ?? "0"),
+      typeOccupation: controllerBien["typeOccupation"]?.text.trim() ,
       dateDelivranceTypeOccupation:
-          controllerBien["dateDelivranceTypeOccupation"]?.text != null &&
-            controllerBien["dateDelivranceTypeOccupation"]!.text.isNotEmpty
+          controllerBien["dateDelivranceTypeOccupation"]?.text.trim() != null &&
+            controllerBien["dateDelivranceTypeOccupation"]!.text.trim().isNotEmpty
               ? DateTime.tryParse(
-                  controllerBien["dateDelivranceTypeOccupation"]!.text)
+                  controllerBien["dateDelivranceTypeOccupation"]!.text.trim())
               : null,
-      usagee: dropdown["usage"] ?? controllerBien["usage"]?.text ,
-      typeConstruction: controllerBien["typeConstruction"]?.text ,
+      usagee: dropdown["usage"] ?? controllerBien["usage"]?.text.trim() ,
+      typeConstruction: controllerBien["typeConstruction"]?.text.trim() ,
       toiture:
-          dropdown["toiture"] ?? controllerBien["toiture"]?.text ,
+          dropdown["toiture"] ?? controllerBien["toiture"]?.text.trim() ,
       typeCloture: dropdown["typeCloture"] ??
-          controllerBien["typeCloture"]?.text ,
+          controllerBien["typeCloture"]?.text.trim() ,
       etatCloture: dropdown["etatCloture"] ??
-          controllerBien["etatCloture"]?.text ,
+          controllerBien["etatCloture"]?.text.trim() ,
       typeRevetement: dropdown["typeRevetement"] ??
-          controllerBien["typeRevetement"]?.text ,
+          controllerBien["typeRevetement"]?.text.trim() ,
       etatRevetement: dropdown["etatRevetement"] ??
-          controllerBien["etatRevetement"]?.text ,
+          controllerBien["etatRevetement"]?.text.trim() ,
       situationRoute: dropdown["situationRoute"] ??
-          controllerBien["situationRoute"]?.text ,
+          controllerBien["situationRoute"]?.text.trim() ,
       typeRoute: dropdown["typeRoute"] ??
-          controllerBien["typeRoute"]?.text ,
-      garage: dropdown["garage"] ?? controllerBien["garage"]?.text ,
+          controllerBien["typeRoute"]?.text.trim() ,
+      garage: dropdown["garage"] ?? controllerBien["garage"]?.text.trim() ,
       qualitePorteFenetre: dropdown["qualitePorteEtFenetre"] ??
-          controllerBien["qualitePorteEtFenetre"]?.text ,
+          controllerBien["qualitePorteEtFenetre"]?.text.trim() ,
       typeCarrelage: dropdown["typeCarrelage"] ??
-          controllerBien["typeCarrelage"]?.text ,
+          controllerBien["typeCarrelage"]?.text.trim() ,
       menuiserie: dropdown["menuiserie"] ??
-          controllerBien["menuiserie"]?.text ,
+          controllerBien["menuiserie"]?.text.trim() ,
       conceptionPieces: dropdown["conceptionPieces"] ??
-          controllerBien["conceptionPieces"]?.text ,
+          controllerBien["conceptionPieces"]?.text.trim() ,
       appareilsSanitaires: dropdown["appareilsSanitaires"] ??
-          controllerBien["appareilsSanitaires"]?.text ,
+          controllerBien["appareilsSanitaires"]?.text.trim() ,
       parkingInterieur: dropdown["parkingInterieur"] ??
-          controllerBien["parkingInterieur"]?.text ,
-      nbAscenseurs: int.tryParse(controllerBien["nbAscenseurs"]?.text ?? "0"),
-      nbSalleBain: int.tryParse(controllerBien["nbSallesBain"]?.text ?? "0"),
-      nbSalleEau: int.tryParse(controllerBien["nbSallesEau"]?.text ?? "0"),
+          controllerBien["parkingInterieur"]?.text.trim() ,
+      nbAscenseurs: int.tryParse(controllerBien["nbAscenseurs"]?.text.trim() ?? "0"),
+      nbSalleBain: int.tryParse(controllerBien["nbSallesBain"]?.text.trim() ?? "0"),
+      nbSalleEau: int.tryParse(controllerBien["nbSallesEau"]?.text.trim() ?? "0"),
       nbPieceReception:
-          int.tryParse(controllerBien["nbPieceReception"]?.text ?? "0"),
-      nbTotalPiece: int.tryParse(controllerBien["nbPiece"]?.text ?? "0"),
-      nbEtage: int.tryParse(controllerBien["nbEtages"]?.text ?? "0"),
+          int.tryParse(controllerBien["nbPieceReception"]?.text.trim() ?? "0"),
+      nbTotalPiece: int.tryParse(controllerBien["nbPiece"]?.text.trim() ?? "0"),
+      nbEtage: int.tryParse(controllerBien["nbEtages"]?.text.trim() ?? "0"),
       confort:
-          dropdown["confort"] ?? controllerBien["confort"]?.text ,
-      numCompteurSenelec: controllerBien["nbCompteurElectricite"]?.text ,
-      numTitreFoncier: controllerBien["numTitreFoncier"]?.text ,
-      dateAcquisition: controllerBien["dateAcquisition"]?.text != null &&
-              controllerBien["dateAcquisition"]!.text.isNotEmpty
-          ? DateTime.tryParse(controllerBien["dateAcquisition"]!.text!)
+          dropdown["confort"] ?? controllerBien["confort"]?.text.trim() ,
+      numCompteurSenelec: controllerBien["nbCompteurElectricite"]?.text.trim() ,
+      numTitreFoncier: controllerBien["numTitreFoncier"]?.text.trim() ,
+      dateAcquisition: controllerBien["dateAcquisition"]?.text.trim() != null &&
+              controllerBien["dateAcquisition"]!.text.trim().isNotEmpty
+          ? DateTime.tryParse(controllerBien["dateAcquisition"]!.text.trim()!)
           : null,
       valeurLocativeAnnuelle:
-          double.tryParse(controllerBien["valeurLocativeAnnuelle"]?.text ?? "0"),
+          double.tryParse(controllerBien["valeurLocativeAnnuelle"]?.text.trim() ?? "0"),
       valeurLocativeAnnuelleSaisie: double.tryParse(
-          controllerBien["valeurLocativeAnnuelleSaisie"]?.text ?? "0"),
+          controllerBien["valeurLocativeAnnuelleSaisie"]?.text.trim() ?? "0"),
       valeurLocativeMensuelle:
-          double.tryParse(controllerBien["valeurLocativeMensuelle"]?.text ?? "0"),
+          double.tryParse(controllerBien["valeurLocativeMensuelle"]?.text.trim() ?? "0"),
       valeurLocativeMensuelleSaisie: double.tryParse(
-          controllerBien["valeurLocativeMensuelleSaisie"]?.text ?? "0"),
-      commentaire: controllerBien["commentaire"]?.text ,
+          controllerBien["valeurLocativeMensuelleSaisie"]?.text.trim() ?? "0"),
+      commentaire: controllerBien["commentaire"]?.text.trim() ,
       escalier: radio["typeParcelle"] ??
-          controllerBien["escalierPrésent"]?.text ,
+          controllerBien["escalierPrésent"]?.text.trim() ,
       videOrdure: radio["videOrdure"] ??
-          controllerBien["videOrdure"]?.text ,
+          controllerBien["videOrdure"]?.text.trim() ,
       monteCharge: radio["monteCharge"] ??
-          controllerBien["monteCharge"]?.text ,
+          controllerBien["monteCharge"]?.text.trim() ,
       groupeElectrogene: radio["groupeElectrogene"] ??
-          controllerBien["groupeElectrogene"]?.text ,
+          controllerBien["groupeElectrogene"]?.text.trim() ,
       dependanceIsolee: radio["dependanceIsolee"] ??
-          controllerBien["dependanceIsolee"]?.text ,
+          controllerBien["dependanceIsolee"]?.text.trim() ,
       garageSouterrain: radio["garageSouterrain"] ??
-          controllerBien["garageSouterrain"]?.text ,
+          controllerBien["garageSouterrain"]?.text.trim() ,
       systemeClimatisation: radio["systemeClimatisation"] ??
-          controllerBien["systemeClimatisation"]?.text ,
+          controllerBien["systemeClimatisation"]?.text.trim() ,
       systemeDomotique: radio["systemeDomotique"] ??
-          controllerBien["systemeDomotique"]?.text ,
+          controllerBien["systemeDomotique"]?.text.trim() ,
       balcon: radio["presenceBalcon"] ??
-          controllerBien["presenceBalcon"]?.text ,
+          controllerBien["presenceBalcon"]?.text.trim() ,
       terrasse: radio["presenceTerrasse"] ??
-          controllerBien["presenceTerrasse"]?.text ,
+          controllerBien["presenceTerrasse"]?.text.trim() ,
       systemeSurveillance:
           radio["presenceSystemeSurveillance"] ??
-              controllerBien["presenceSystemeSurveillance"]?.text ,
+              controllerBien["presenceSystemeSurveillance"]?.text.trim() ,
       amenagementPaysager: radio["amenagementPaysager"] ??
-          controllerBien["amenagementPaysager"]?.text ,
+          controllerBien["amenagementPaysager"]?.text.trim() ,
       jardin: jardinValue,
       piscine: piscineValue,
       coursDeTennis: coursDeTennisValue,
       coursGazonnee: coursGazonneeValue,
       terrainGolf: terrainGolfValue,
       autre: autreValue,
-      angle: radio["angle"] ?? controllerBien["angle"]?.text ,
+      angle: radio["angle"] ?? controllerBien["angle"]?.text.trim() ,
       eclairagePublic: radio["eclairagePublic"] ??
-          controllerBien["eclairagePublic"]?.text ,
+          controllerBien["eclairagePublic"]?.text.trim() ,
       murEnCiment: radio["murEnCiment"] ??
-          controllerBien["murEnCiment"]?.text ,
+          controllerBien["murEnCiment"]?.text.trim() ,
       attributsArchitecturaux:
           radio["attributsArchitecturaux"] ??
-              controllerBien["attributsArchitecturaux"]?.text ,
+              controllerBien["attributsArchitecturaux"]?.text.trim() ,
       trottoir:
-          radio["troittoir"] ?? controllerBien["trottoir"]?.text ,
+          radio["troittoir"] ?? controllerBien["trottoir"]?.text.trim() ,
       proprieteEnLocation: radio["proprieteEnLocation"] ??
-          controllerBien["proprieteEnLocation"]?.text ,
+          controllerBien["proprieteEnLocation"]?.text.trim() ,
       autreTypeOccupation: radio["autreOccupation"] ??
-          controllerBien["autreOccupation"]?.text ,
+          controllerBien["autreOccupation"]?.text.trim() ,
       // Ajoutez d'autres champs ici
     );
-    print(bienData.idParcelle);
-    
-    print(bienData.idProprietaire);
+   
     if (await bienService.retournerBien(bienData.identifiant) == 0) {
       //
       try {
@@ -324,7 +324,8 @@ class BuildFieldBienState extends State<BuildFieldBien> {
 
       }
     } else {
-
+      print(bienData.identifiant);
+      print(bienService.retournerBien(bienData.identifiant));
       print("Pas d'ajout ni de modification");
 
     }
@@ -386,16 +387,68 @@ class BuildFieldBienState extends State<BuildFieldBien> {
     }
   }
 
+  
   @override
   void initState() {
     super.initState();
     parcelles = parcelleService.listerParcelles(widget.recensement.section, widget.recensement.region, widget.recensement.departement, widget.recensement.commune);
-    print(parcelles);
-    for (var field in widget.fieldsBien) {
-      if (field.containsKey("key") && field["key"] != null && field["key"]!.isNotEmpty) {
-        widget.controllers[field["key"]!] = TextEditingController();
-      }
-    }
+
+    // Initialize controllers if they don't exist
+    widget.controllers.putIfAbsent("region", () => TextEditingController());
+    widget.controllers.putIfAbsent("departement", () => TextEditingController());
+    widget.controllers.putIfAbsent("commune", () => TextEditingController());
+    widget.controllers.putIfAbsent("section", () => TextEditingController());
+    
+    // Initialize identification fields
+    widget.controllers.putIfAbsent("numIdentifiantProprietaire", () => TextEditingController());
+    widget.controllers.putIfAbsent("identifiant", () => TextEditingController());
+    
+    // Initialize address fields
+    widget.controllers.putIfAbsent("nomRue", () => TextEditingController());
+    widget.controllers.putIfAbsent("codeRue", () => TextEditingController());
+    widget.controllers.putIfAbsent("quartier", () => TextEditingController());
+    widget.controllers.putIfAbsent("village", () => TextEditingController());
+    widget.controllers.putIfAbsent("adresse", () => TextEditingController());
+    widget.controllers.putIfAbsent("nomVoirie", () => TextEditingController());
+    widget.controllers.putIfAbsent("nomAutreVoirie", () => TextEditingController());
+    
+    // Initialize property details
+    widget.controllers.putIfAbsent("superficie", () => TextEditingController());
+    widget.controllers.putIfAbsent("typeOccupation", () => TextEditingController());
+    widget.controllers.putIfAbsent("typeConstruction", () => TextEditingController());
+    widget.controllers.putIfAbsent("numTitreFoncier", () => TextEditingController());
+    widget.controllers.putIfAbsent("numeroLot", () => TextEditingController());
+    widget.controllers.putIfAbsent("numeroPorte", () => TextEditingController());
+    
+    // Initialize numeric fields
+    widget.controllers.putIfAbsent("nbAscenseurs", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbSallesBain", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbSallesEau", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbPieceReception", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbPiece", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbEtages", () => TextEditingController());
+    widget.controllers.putIfAbsent("niveauLot", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbCompteurEau", () => TextEditingController());
+    widget.controllers.putIfAbsent("nbCompteurElectricite", () => TextEditingController());
+    
+    // Initialize date fields
+    widget.controllers.putIfAbsent("dateAcquisition", () => TextEditingController());
+    widget.controllers.putIfAbsent("dateDelivranceTypeOccupation", () => TextEditingController());
+    
+    // Initialize value fields
+    widget.controllers.putIfAbsent("valeurLocativeAnnuelle", () => TextEditingController());
+    widget.controllers.putIfAbsent("valeurLocativeAnnuelleSaisie", () => TextEditingController());
+    widget.controllers.putIfAbsent("valeurLocativeMensuelle", () => TextEditingController());
+    widget.controllers.putIfAbsent("valeurLocativeMensuelleSaisie", () => TextEditingController());
+    
+    // Initialize other fields
+    widget.controllers.putIfAbsent("commentaire", () => TextEditingController());
+    
+    // Set initial values for location fields
+    widget.controllers["region"]?.text = widget.recensement.region;
+    widget.controllers["departement"]?.text = widget.recensement.departement;
+    widget.controllers["commune"]?.text = widget.recensement.commune;
+    widget.controllers["section"]?.text = widget.recensement.section;
   }
 
   // Méthode pour choisir plusieurs images
@@ -508,12 +561,8 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                   fieldKey == 'nbEtages' ||
                   fieldKey == 'niveauLot' ||
                   fieldKey == 'nbPiece') {
-                  if(fieldKey == "region"){ 
-                    widget.controllers["region"]?.text = widget.recensement.region ?? '';
-                  }  
-                  if(fieldKey == "departement"){ widget.controllers["departement"]?.text = widget.recensement.departement ?? '';}
-                  if(fieldKey == "commune"){widget.controllers["commune"]?.text = widget.recensement.commune ?? '';}
-                  if(fieldKey == "section") {widget.controllers["section"]?.text = widget.recensement.section ?? '';}
+                 
+
                   // Ajouter une étoile pour "identifiant"
                   String labelText = fieldKey == "identifiant" ? "$fieldKey (obligatoire)" : fieldKey;
                 return Padding(
@@ -522,7 +571,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                     labelText: labelText, 
                     controller: widget.controllers[fieldKey],
                     validator: (val) {
-                    if (fieldKey == "identifiant" && val!.isEmpty) {
+                    if (fieldKey == "identifiant" && val!.trim().isEmpty) {
                       return "Ce champ est obligatoire";
                     }
                     return null; // Pas d'erreur pour les autres champs
@@ -563,6 +612,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                   ),
                 );
               } else if (fieldKey == "photos") {
+                print(widget.controllers['nomRue']?.text);
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Column(
@@ -620,12 +670,12 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                           height: 100,
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: _imageFiles!.length,
+                            itemCount: _imageFiles.length,
                             itemBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: Image.file(
-                                  File(_imageFiles![index].path),
+                                  File(_imageFiles[index].path),
                                   width: 80,
                                   height: 80,
                                   fit: BoxFit.cover,

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:mobile_data_collection/screens/welcome_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -16,6 +14,8 @@ class MapScreenState extends State<MapScreen> {
   LatLng? _currentPosition; // Stocke la position actuelle de l'appareil
   List<List<LatLng>> polygonPoints = [];
   final MapController _mapController = MapController();
+  final List<Marker> _markers = []; 
+
 
   @override
   void initState() {
@@ -75,39 +75,59 @@ class MapScreenState extends State<MapScreen> {
       );
     }).toList();
   }
+  LatLng getCurrentMapCenter() {
+    if (_mapController == null) return LatLng(0, 0); // Fallback
+    return _mapController.camera.center;
+  }
 
   // Fonction pour obtenir la position de l'utilisateur
-  Future<LatLng?> getUserLocation() async {
-    try {
+  Future<LatLng?> getUserLocation({bool useGps = true}) async {
+  try {
+    LatLng targetPosition;
+
+    if (useGps) {
+      // Partie GPS (comme avant)
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) {
-        throw Exception('Les services de localisation sont désactivés.');
-      }
+      if (!serviceEnabled) throw Exception('Activez votre GPS');
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) {
-          throw Exception('Les permissions de localisation sont refusées.');
+          throw Exception('Permission refusée');
         }
       }
 
-      if (permission == LocationPermission.deniedForever) {
-        throw Exception(
-            'Les permissions de localisation sont définitivement refusées.');
-      }
-
-      final position = await Geolocator.getCurrentPosition();
-      _currentPosition = LatLng(position.latitude, position.longitude);
-
-      _mapController.move(_currentPosition!, 16.0);
-
-      return _currentPosition!;
-    } catch (e) {
-      print('Erreur lors de la récupération de la localisation: $e');
-      return null;
+      final position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+      targetPosition = LatLng(position.latitude, position.longitude);
+    } else {
+      // Récupère le centre de la carte si GPS non utilisé
+      targetPosition = getCurrentMapCenter();
     }
+
+    // Met à jour la carte
+    _markers.clear();
+    _markers.add(
+      Marker(
+        point: targetPosition,
+        width: 40,
+        height: 40,
+        child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
+      ),
+    );
+
+      _mapController.move(targetPosition, 16.0);
+
+    return targetPosition;
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Erreur: ${e.toString()}')),
+    );
+    return null;
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -115,8 +135,8 @@ class MapScreenState extends State<MapScreen> {
       body: FlutterMap(
         mapController: _mapController,
         options: MapOptions(
-          initialCenter: _currentPosition ?? const LatLng(14.955,-14.855), 
-          initialZoom: 7, 
+          initialCenter: _currentPosition ?? const LatLng(14.5, -14.5), 
+          initialZoom: 6.5, 
           interactionOptions: InteractionOptions(
             flags: InteractiveFlag.all, // Active toutes les interactions
             debugMultiFingerGestureWinner: false, // Désactive le débogage
@@ -134,46 +154,28 @@ class MapScreenState extends State<MapScreen> {
         children: [
           TileLayer(
             urlTemplate:
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            tileSize: 256,
-            maxZoom: 30,
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+          
+            maxZoom: 21,
             minZoom: 3,
-            subdomains: [],
+            subdomains: ['a', 'b', 'c'],
+            userAgentPackageName: 'com.example.app',
           ),
-
+          MarkerLayer(markers: _markers),
           Positioned(
             bottom: 20,
             right: 20,
             child: FloatingActionButton(
               backgroundColor: Colors.white,
               foregroundColor: Color.fromARGB(255, 148, 92, 34),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        WelcomeScreen(),
-                    transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
-                      const begin = Offset(1.0, 0.0);
-                      const end = Offset.zero;
-                      const curve = Curves.ease;
-
-                      var tween = Tween(begin: begin, end: end)
-                          .chain(CurveTween(curve: curve));
-                      var offsetAnimation = animation.drive(tween);
-
-                      return SlideTransition(
-                        position: offsetAnimation,
-                        child: child,
-                      );
-                    },
-                  ),
-                );
+              onPressed: () async {
+                await getUserLocation(useGps: true);
               },
-              child: Icon(Icons.history),
+              child: Icon(Icons.my_location),
             ),
           ),
+          
+
           if (polygonPoints.isNotEmpty)
             PolygonLayer(polygons: createPolygons(polygonPoints)),
         ],

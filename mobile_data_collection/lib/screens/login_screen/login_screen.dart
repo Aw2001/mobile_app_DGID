@@ -1,9 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:mobile_data_collection/model/login_utilisateur.dart';
-import 'package:mobile_data_collection/screens/forgot_password_screnn.dart';
+import 'package:mobile_data_collection/screens/forgot_password/forgot_password_screnn.dart';
 import 'package:mobile_data_collection/screens/home_screen/home_screen.dart';
+import 'package:mobile_data_collection/service/auth_service.dart';
 import 'package:mobile_data_collection/service/storage_service.dart';
+import 'package:mobile_data_collection/service/user_service.dart';
+import '../../utils/constants.dart';
 import '../sign_up_screen/sign_up_screen.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,50 +20,81 @@ class LoginScreen extends StatefulWidget {
 class InitState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          width: screenSize.width,
-          height: screenSize.height,
-          child: Stack(
-            children: [
-             
-              Positioned(
-                top: 80,
-                left: 20,
-                right: 20,
+      body: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
-                  
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Image.asset('assets/images/logoT.png', width: 150),
-                    Text(
-                      "Bienvenue",
-                      style: TextStyle(fontSize: 18, color: Color(0xFFC3AD65)),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      'Veuillez vous connecter pour continuer',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 9,
-                        color: Colors.grey,
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.07),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset('assets/images/logoT.png', width: 90),
+                          const SizedBox(height: 10),
+                          const Text(
+                            "Bienvenue",
+                            style: TextStyle(fontSize: 18, color: Color(0xFFC3AD65), fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 5),
+                          const Text(
+                            'Veuillez vous connecter pour continuer',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                          _FormContent(),
+                        ],
                       ),
                     ),
-
-                    SizedBox(height: 10),
-                    _FormContent(),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
+}
+
+class TopCurveClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.lineTo(0, size.height * 0.75);
+    path.quadraticBezierTo(
+      size.width * 0.5, size.height,
+      size.width, size.height * 0.75,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
 
 class _FormContent extends StatefulWidget {
@@ -78,121 +112,62 @@ class __FormContentState extends State<_FormContent> {
   final TextEditingController _passwordController = TextEditingController();
   String _errorMessage = "";
   LoginUtilisateur user = LoginUtilisateur("", "");
+  UserService userService = UserService();
 
-  Future<void> retourneInitial(String username) async {
-    
-    Uri url = Uri.parse("http://192.168.1.7:8081/api/utilisateurs/initial/$username");
-    try {
-      // Récupérer le token JWT depuis le stockage local
-      final String? token = await StorageService.readData('jwt_token');
-
-      // Vérifiez si le token est null
-      if (token == null) {
-        throw Exception('Token introuvable, veuillez vous reconnecter.');
-      }
-
-      // Envoi de la requête HTTP
-      final response = await http.get(
-        url,
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-       if (response.statusCode == 200) {
-        if (response.body.isEmpty) {
-           print("aucune reponse");
-        } else {
-          String fullName = response.body; 
-        
-          // Séparation de la chaîne en mots
-          List<String> nameParts = fullName.split(','); 
-          List<String> firstNameParts = nameParts[0].split(' ');
-          List<String> secondNameParts = nameParts[1].split(' ');
-          String firstInitial = firstNameParts[0][0];
-          String secondInitial = secondNameParts[0][0];
-          
-          setState(() {
-            initial = firstInitial + secondInitial; // Mise à jour de l'état avec les initiales
-            
-          });
-          
-        }
-      } else {
-        throw Exception('Erreur serveur : ${response.statusCode}');
-      }
-      
-    } catch (e) {
-      print("Erreur : $e");
-      
-    }
-  }
   Future<void> loginUser(String username, String password) async {
-    Uri url = Uri.parse("http://192.168.1.7:8081/auth/login");
+    setState(() {
+      _errorMessage = "";
+    });
+    
     try {
-      var response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({
-          'username': username,
-          'password': password,
-        }),
-      );
+      print("Tentative de connexion...");
+      // Tentative de connexion via UserService
+      bool loginSuccess = await userService.login(username, password);
+      print("Résultat login: $loginSuccess");
       
-      if (response.statusCode == 200) {
-        String token = json.decode(response.body)['token'];
-        await StorageService.writeData('jwt_token', token);
-        retourneInitial(username);
-        Uri url1 = Uri.parse("http://192.168.1.7:8081/api/utilisateurs/getEmail/$username");
+      if (loginSuccess) {
         try {
-          // Récupérer le token JWT depuis le stockage local
-          final String? token = await StorageService.readData('jwt_token');
-
-          // Vérifiez si le token est null
-          if (token == null) {
-            throw Exception('Token introuvable, veuillez vous reconnecter.');
-          }
-
-          // Envoi de la requête HTTP
-          final response = await http.get(
-            url1,
-            headers: {
-              'Authorization': 'Bearer $token',
-              'Content-Type': 'application/json',
-            },
-          );
-          if (response.statusCode == 200) {
-            if (response.body.isEmpty) {
-              print("aucune reponse");
-            } else {
-              email = response.body;
+          // Récupérer les informations de l'utilisateur
+          print("Récupération des initiales...");
+          initial = await userService.retourneInitial(username);
+          print("Initiales récupérées: $initial");
+          
+          print("Récupération de l'email...");
+          email = await userService.getEmailByUsername(username);
+          print("Email récupéré: $email");
+          
+          if (email.isEmpty) {
+            print("Email vide reçu");
+            setState(() {
+              _errorMessage = "Impossible de récupérer les informations utilisateur";
+            });
+          } else {
+            // Sauvegarder les informations utilisateur pour la persistance de session
+            await AuthService.saveUserInfo(username, email, initial);
+            
+            print("Navigation vers HomeScreen");
+            if (mounted) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => HomeScreen(username, email, initial)),
               );
             }
-          } else {
-            throw Exception('Erreur serveur : ${response.statusCode}');
           }
-          
         } catch (e) {
-          print("Erreur : $e");
-          
+          print("Erreur lors de la récupération des infos: $e");
+          setState(() {
+            _errorMessage = "Erreur lors de la récupération des informations utilisateur";
+          });
         }
-
-        
       } else {
-        print("Erreur ${response.statusCode} : ${response.body}");
         setState(() {
-          _errorMessage = "Username ou mot de passe incorrect."; // Message d'erreur
+          _errorMessage = "Identifiants incorrects";
         });
       }
     } catch (e) {
-      print("Erreur : $e");
+      print("Erreur de connexion: $e");
       setState(() {
-        _errorMessage = "Une erreur est survenue. Veuillez réessayer.";
+        _errorMessage = "Erreur de connexion au serveur";
       });
     }
   }
@@ -227,10 +202,10 @@ class __FormContentState extends State<_FormContent> {
             TextFormField(
               controller: _usernameController,
               onChanged: (val) {
-                user.identifiant = val;
+                user.identifiant = val.trim();
               },
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Ce champ ne peut pas être vide';
                 }
 
@@ -252,6 +227,7 @@ class __FormContentState extends State<_FormContent> {
                   fontSize: 12, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             
             SizedBox(height: 10),
@@ -259,10 +235,10 @@ class __FormContentState extends State<_FormContent> {
             TextFormField(
               controller: _passwordController,
               onChanged: (val) {
-                user.password = val;
+                user.password = val.trim();
               },
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Ce champ ne peut pas être vide';
                 }
 
@@ -295,6 +271,7 @@ class __FormContentState extends State<_FormContent> {
                   fontSize: 12, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             _gap(),
 
@@ -315,7 +292,7 @@ class __FormContentState extends State<_FormContent> {
                     style: TextStyle(
                       color: Color(0xFF8c6023),
                       decoration: TextDecoration.none,
-                      fontSize: 10,
+                      fontSize: 8,
                     ),
                   ),
                 ),
@@ -344,7 +321,7 @@ class __FormContentState extends State<_FormContent> {
                 ),
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
-                    loginUser(_usernameController.text, _passwordController.text);
+                    loginUser(_usernameController.text.trim(), _passwordController.text.trim());
                   }
                 },
               ),
@@ -356,7 +333,7 @@ class __FormContentState extends State<_FormContent> {
                 children: [
                   const Text(
                     "Vous n'avez pas de compte ? ",
-                    style: TextStyle(fontSize: 10.0),
+                    style: TextStyle(fontSize: 8),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -374,7 +351,7 @@ class __FormContentState extends State<_FormContent> {
                     child: const Text(
                       "Créer un compte",
                       style: TextStyle(
-                        fontSize: 10.0,
+                        fontSize: 8,
                         color: Color(0xFF8c6023),
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,

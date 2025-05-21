@@ -15,6 +15,10 @@ class ExpansionPanelListExampleApp extends StatelessWidget {
   get dropdownProprietaire => {};
   
   get radioProprietaire => null;
+
+  get index => null;
+
+  get message => null;
   
 
   @override
@@ -30,7 +34,8 @@ class ExpansionPanelListExampleApp extends StatelessWidget {
             controllers: controllers,
             dropdownProprietaire: dropdownProprietaire,
             radioProprietaire: radioProprietaire,
-            fields: fields,),
+            fields: fields,
+            index: index),
       ),
     );
   }
@@ -57,16 +62,16 @@ class ExpansionPanelListExampleProprietaire extends StatefulWidget {
   final Map<String, String?> radioProprietaire;
   final VoidCallback onDelete;
   final String headerValue;
+  final int index;
+  
 
-  
-  
   ExpansionPanelListExampleProprietaire({
     super.key,
     required this.nbItems,
     required this.headerValue,
     required this.onDelete,
     required this.controllers, 
-    required this.fields, required this.dropdownProprietaire, required this.radioProprietaire
+    required this.fields, required this.dropdownProprietaire, required this.radioProprietaire, required this.index
     
   });
 
@@ -128,7 +133,7 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExamplePro
               },
               children: [
                 ExpansionPanel(
-                  backgroundColor: kBackgroundColor,
+                  backgroundColor: const Color(0xFFF7F6F2),
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return ListTile(
                       title: Text(item.headerValue),

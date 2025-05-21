@@ -4,7 +4,8 @@ import 'dropdown_screen.dart';
 import 'package:mobile_data_collection/utils/constants.dart';
 
 class NavBarScreen extends StatelessWidget {
-  NavBarScreen({super.key});
+  final String initial;
+  NavBarScreen(this.initial);
 
   final GlobalKey<MapScreenState> mapScreenKey = GlobalKey<MapScreenState>();
 
@@ -37,35 +38,36 @@ class NavBarScreen extends StatelessWidget {
                     onPressed: () => _scaffoldKey.currentState?.openDrawer(),
                   ),
             title: const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Explorer",
-                    style: TextStyle(
-                        color: Color(0xFFC3AD65),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18),
-                  ),
-                ],
+          padding: EdgeInsets.only(left: 10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Explorer",
+                
+                style: TextStyle(
+                    color: Color(0xFFC3AD65),
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+        actions:  [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: CircleAvatar(
+              backgroundColor: Color(0xFFC3AD65),
+              child: Text(
+                initial,
+                style: TextStyle(
+                    fontSize: 15,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
               ),
             ),
-            actions: const [
-              Padding(
-                padding: EdgeInsets.only(right: 16.0),
-                child: CircleAvatar(
-                  backgroundColor: Color(0xFFC3AD65),
-                  child: Text(
-                    'ES',
-                    style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              )
-            ],
+          )
+        ],
           ),
           drawer: CustomDrawer(mapScreenKey: mapScreenKey),
           body: MapScreen(key: mapScreenKey)),
@@ -102,7 +104,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
             child: Text(
               'Tableau de bord',
               style: TextStyle(
-                fontSize: 23,
+                fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Color(0xFFC3AD65),
               ),

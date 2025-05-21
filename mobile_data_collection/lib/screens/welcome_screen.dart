@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'login_screen/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:mobile_data_collection/screens/home_screen/home_screen.dart';
+import 'package:mobile_data_collection/service/auth_service.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -13,10 +15,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    starTimer();
+    checkLoginStatus();
   }
 
-  void loginRoute() {
+  void navigateToLogin() {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
@@ -32,9 +34,48 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  starTimer() async {
-    var duration = const Duration(seconds: 3);
-    return Timer(duration, loginRoute);
+  void navigateToHome(String username, String email, String initial) {
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(username, email, initial),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 750),
+      ),
+    );
+  }
+
+  Future<void> checkLoginStatus() async {
+    // Afficher l'écran de bienvenue pendant au moins 2 secondes
+    await Future.delayed(const Duration(seconds: 2));
+    
+    // Vérifier si l'utilisateur est déjà connecté
+    final isLoggedIn = await AuthService.isLoggedIn();
+    
+    if (isLoggedIn) {
+      // Récupérer les informations utilisateur stockées
+      final userInfo = await AuthService.getUserInfo();
+      
+      if (userInfo.isNotEmpty && mounted) {
+        // Naviguer vers l'écran d'accueil avec les informations utilisateur
+        navigateToHome(
+          userInfo['username']!,
+          userInfo['email']!,
+          userInfo['initial']!
+        );
+      } else if (mounted) {
+        // Si les informations utilisateur sont manquantes, rediriger vers la connexion
+        navigateToLogin();
+      }
+    } else if (mounted) {
+      // Si non connecté, rediriger vers l'écran de connexion
+      navigateToLogin();
+    }
   }
 
   @override

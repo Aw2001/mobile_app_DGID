@@ -9,8 +9,9 @@
 
 
     <application
+        android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true"
-        android:label="mobile_data_collection"
+        android:label="TerangaCollecte"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

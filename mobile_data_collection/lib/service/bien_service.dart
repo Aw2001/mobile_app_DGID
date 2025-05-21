@@ -1,35 +1,34 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:mobile_data_collection/model/bien.dart';
+import 'package:mobile_data_collection/service/dio_client.dart';
+import 'package:mobile_data_collection/utils/constants.dart';
+
 
 class BienService {
-  String baseUrl;
-
-  BienService(this.baseUrl);
+  final Dio _dio = DioClient().dio;
+  BienService();
 
   Future<void> ajouterBien(String? recensementId, Bien bien) async {
-    final url = Uri.parse('$baseUrl/add?recensementId=$recensementId');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(bien.toJson()),
-    );
-
+    
+     final response = await _dio.post(
+        "http://teranga-gestion.kheush.xyz:8081/api/biens/add?recensementId=$recensementId",
+        data: bien.toJson(),  // Le corps de la requête
+      );
+    
     if (response.statusCode != 200) {
-      throw Exception("Erreur serveur : ${response.body}");
+      throw Exception("Erreur serveur : ${response.data}");
     }
   }
 
   Future<Bien?> mettreAJourBien(String? recensementId, Bien bien) async {
-    final url = Uri.parse('$baseUrl/update?recensementId=$recensementId');
-    final response = await http.put(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(bien.toJson()),
-    );
+    
+    final response = await _dio.put(
+        "http://teranga-gestion.kheush.xyz:8081/api/biens/update?recensementId=$recensementId",
+        data: bien.toJson(),  // Le corps de la requête
+      );
 
     if (response.statusCode == 200) {
-      return Bien.fromJson(jsonDecode(response.body));
+      return Bien.fromJson(response.data);
     } else {
       throw Exception('Failed to update Bien');
     }
@@ -40,28 +39,22 @@ class BienService {
     if (id == null) {
       throw Exception('L\'ID du bien ne peut pas être nul');
     }
-
-    final url = Uri.parse('$baseUrl/research/$id');
-
     try {
-      final response = await http.get(
-        url,
-        headers: {'Content-Type': 'application/json'},
-      );
+    
+      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/biens/research/$id");
 
-      if (response.statusCode == 200) {
-        if (response.body == "null") {
-          return 0;
+        if (response.statusCode == 200) {
+          if (response.data == null || response.data.toString().isEmpty) {
+            return 0;
+          } else {
+            return 1;
+          }
         } else {
-          return 1;
+          return -1;
         }
-      } else {
-        return -1;
-      }
     } catch (e) {
-      // Attraper toute autre exception, comme une erreur de réseau
 
-      throw Exception('Erreur lors de la récupération du bien: $e');
+        throw Exception('Erreur lors de la récupération du bien: $e');
     }
   }
 }

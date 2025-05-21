@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_data_collection/utils/exports.dart';
 import 'package:mobile_data_collection/utils/extensions.dart';
 
+
 class BuildFieldProprietaire extends StatefulWidget {
   final List<Map<String, String>> fields;
   final Map<String, TextEditingController> controllers;
@@ -15,15 +16,12 @@ class BuildFieldProprietaire extends StatefulWidget {
   @override
   BuildFieldProprietaireState createState() => BuildFieldProprietaireState();
 
-  
-
- 
 }
 
 class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
   
   
-  final ProprietaireService _proprietaireService = ProprietaireService("http://192.168.1.7:8081/api/proprietaires");
+  final ProprietaireService _proprietaireService = ProprietaireService();
 
   // Configuration of fields for Proprietaire with dropdowns and radio buttons
   
@@ -38,42 +36,42 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
     // Données à envoyer
     final Proprietaire proprietaireData = Proprietaire(
       // Autres champs récupérés des contrôleurs
-      numIdentifiant: controllerProp["numeroIdentification"]?.text,
-      nom: controllerProp["nom"]?.text,
-      prenom: controllerProp["prenom"]?.text,
-      email: controllerProp["email"]?.text,
+      numIdentifiant: controllerProp["numeroIdentification"]?.text.trim(),
+      nom: controllerProp["nom"]?.text.trim(),
+      prenom: controllerProp["prenom"]?.text.trim(),
+      email: controllerProp["email"]?.text.trim(),
       typeIdentifiant: dropdownProprietaire["typeIdentification"] ??
-          controllerProp["typeIdentification"]?.text,
-      dateNaissance: controllerProp["dateNaissace"]?.text != null &&
-              controllerProp["dateNaissance"]!.text.isNotEmpty
-          ? DateTime.tryParse(controllerProp["dateNaissance"]!.text)
+          controllerProp["typeIdentification"]?.text.trim(),
+      dateNaissance: controllerProp["dateNaissace"]?.text.trim() != null &&
+              controllerProp["dateNaissance"]!.text.trim().isNotEmpty
+          ? DateTime.tryParse(controllerProp["dateNaissance"]!.text.trim())
           : null,
-      lieuNaissance: controllerProp["lieuNaissance"]?.text,
-      dateDelivranceIdentifiant: controllerProp["dateDelivrance"]?.text != null &&
-              controllerProp["dateDelivrance"]!.text.isNotEmpty
-          ? DateTime.tryParse(controllerProp["dateDelivrance"]!.text)
+      lieuNaissance: controllerProp["lieuNaissance"]?.text.trim(),
+      dateDelivranceIdentifiant: controllerProp["dateDelivrance"]?.text.trim() != null &&
+              controllerProp["dateDelivrance"]!.text.trim().isNotEmpty
+          ? DateTime.tryParse(controllerProp["dateDelivrance"]!.text.trim())
           : null,
-      dateExpirationIdentifiant: controllerProp["dateExpiration"]?.text != null &&
-              controllerProp["dateExpiration"]!.text.isNotEmpty
-          ? DateTime.tryParse(controllerProp["dateExpiration"]!.text)
+      dateExpirationIdentifiant: controllerProp["dateExpiration"]?.text.trim() != null &&
+              controllerProp["dateExpiration"]!.text.trim().isNotEmpty
+          ? DateTime.tryParse(controllerProp["dateExpiration"]!.text.trim())
           : null,
-      statut: dropdownProprietaire["statut"] ?? controllerProp["statut"]?.text,
+      statut: dropdownProprietaire["statut"] ?? controllerProp["statut"]?.text.trim(),
       salarie: radioProprietaire["propSalarie"] ??
-          controllerProp["propSalarie"]?.text,
-      civilite: controllerProp["civilite"]?.text,
-      ninea: controllerProp["ninea"]?.text,
+          controllerProp["propSalarie"]?.text.trim(),
+      civilite: controllerProp["civilite"]?.text.trim(),
+      ninea: controllerProp["ninea"]?.text.trim(),
       rencontre: radioProprietaire["propRencontre"] ??
-          controllerProp["propRencontre"]?.text,
-      telephone: controllerProp["telephone"]?.text,
-      telephoneContribuable: controllerProp["telephoneContribuable"]?.text,
+          controllerProp["propRencontre"]?.text.trim(),
+      telephone: controllerProp["telephone"]?.text.trim(),
+      telephoneContribuable: controllerProp["telephoneContribuable"]?.text.trim(),
       valeurLocativeProprietaire:
-          double.tryParse(controllerProp["valeurLocativeMensuelle"]?.text ?? "0"),
+          double.tryParse(controllerProp["valeurLocativeMensuelle"]?.text.trim() ?? "0"),
       enregistre: radioProprietaire["enregistreCgf"] ??
-          controllerProp["enregistreCgf"]?.text,
+          controllerProp["enregistreCgf"]?.text.trim(),
       pensionne: radioProprietaire["propPensionne"] ??
-          controllerProp["propPensionne"]?.text,
+          controllerProp["propPensionne"]?.text.trim(),
       autrePropriete: radioProprietaire["dautresProp"] ??
-          controllerProp["dautresProp"]?.text,
+          controllerProp["dautresProp"]?.text.trim(),
     );
     final int? proprietaireTrouve = await _proprietaireService
         .retournerProprietaire(proprietaireData.numIdentifiant);
@@ -104,12 +102,7 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
   @override
   void initState() {
     super.initState();
-    // Initialiser les contrôleurs et les états d'expansion
-    for (var field in widget.fields) {
-      if (field["key"] != null) {
-        widget.controllers[field["key"]!] = TextEditingController();
-      }
-    }
+   
   }
 
   @override
@@ -172,10 +165,10 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                     )
                   ],
                   validator: (val) {
-                    if(val == null || val.isEmpty) {
+                    if(val == null || val.trim().isEmpty) {
                       return null;
                     }
-                    else if(!val.isValidName) {
+                    else if(!val.trim().isValidName) {
                       return 'Il doit contenir que des lettres'; 
                     }
                     else {
@@ -196,11 +189,11 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                   LengthLimitingTextInputFormatter(9), 
                 ],
                 validator: (val) {
-                  if(val == null || val.isEmpty) {
+                  if(val == null || val.trim().isEmpty) {
                       return null;
                     }
-                    else if(!val.isValidPhone) {
-                      return 'IL doit contenir 9 chiffres'; 
+                    else if(!val.trim().isValidPhone) {
+                      return 'Il doit contenir 9 chiffres'; 
                     }
                     else {
                       return null;
@@ -218,9 +211,9 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                   validator: (val) {
                     if (fieldKey == "numeroIdentification" ) {
                       
-                      if((val!.isEmpty)){
+                      if((val!.trim().isEmpty)){
                         return "Ce champ est obligatoire";
-                      } else if (!val.isValidCni) {
+                      } else if (!val.trim().isValidCni) {
                           return 'Il doit contenir 13 ou 14 chiffres';
                       }
                       
@@ -237,10 +230,10 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                 labelText: fieldKey,
                 controller: widget.controllers[fieldKey]!,
                 validator: (val) {
-                  if(val == null || val.isEmpty) {
+                  if(val == null || val.trim().isEmpty) {
                       return null;
                     }
-                    else if(!val.isValidEmail) {
+                    else if(!val.trim().isValidEmail) {
                       return 'Veuiller saisir un email valide'; 
                     }
                     else {

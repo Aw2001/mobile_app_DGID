@@ -1,0 +1,2 @@
+C:/Users/awafa/Documents/Geospace/projet/mobile_app_DGID/mobile_data_collection/android/app/.cxx/Debug/4y2wy1d1/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/awafa/Documents/Geospace/projet/mobile_app_DGID/mobile_data_collection/android/app/.cxx/Debug/4y2wy1d1/armeabi-v7a/CMakeFiles/rebuild_cache.dir

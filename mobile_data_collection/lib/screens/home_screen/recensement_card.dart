@@ -5,35 +5,25 @@ import 'package:mobile_data_collection/screens/formulaire/multi_form_page.dart';
 class RecensementCard extends StatelessWidget {
   final bool isBrown;
   final Recensement recensement;
+  final int index;
+  final String? numRecensement;
 
-  const RecensementCard({super.key, required this.isBrown, required this.recensement});
-
+  const RecensementCard({super.key, required this.isBrown, required this.recensement, required this.index, required this.numRecensement});
+ 
   @override
   Widget build(BuildContext context) {
     return Hero(
         tag: 'recensement_${recensement.numRecensement}',
         child: GestureDetector(
-        onTap: () async{
+        onTap: () {
           Navigator.push(
             context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  MultiFormPage(recensement: recensement),//on va dans multi stepscreen avec les info du recensement
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.ease;
-
-                var tween = Tween(begin: begin, end: end)
-                    .chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-
-                return SlideTransition(
-                  position: offsetAnimation,
-                  child: child,
-                );
-              },
+            MaterialPageRoute(
+              builder: (context) => MultiFormPage(
+                recensement: recensement,
+                index: index,
+                numRecensement: numRecensement,
+              ),
             ),
           );
         },
@@ -50,7 +40,7 @@ class RecensementCard extends StatelessWidget {
             type: MaterialType.transparency,
             color: Colors.transparent,
             child: ListTile(
-            title: Text(recensement.commentaire,
+            title: Text(recensement.titre,
             style: TextStyle(color: isBrown ? Colors.white : Colors.black,
             fontSize: 12)),
             subtitle: Text('Créé le ${recensement.dateCreation}',
@@ -86,7 +76,7 @@ class RecensementCard extends StatelessWidget {
                                 context,
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation, secondaryAnimation) =>
-                                      MultiFormPage(recensement: recensement),//on va dans multi stepscreen avec les info du recensement
+                                      MultiFormPage(recensement: recensement, index: index, numRecensement: numRecensement,),//on va dans multi stepscreen avec les info du recensement
                                   transitionsBuilder:
                                       (context, animation, secondaryAnimation, child) {
                                     const begin = Offset(1.0, 0.0);

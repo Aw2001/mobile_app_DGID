@@ -14,7 +14,7 @@ class ExpansionPanelListExampleApp extends StatelessWidget {
   get fields => null;
   
   get dropdownLocataire => null;
-  
+  get index => null;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,8 @@ class ExpansionPanelListExampleApp extends StatelessWidget {
             },
             controllers: controllers,
             dropdownLocataire: dropdownLocataire,
-            fields: fields,),
+            fields: fields,
+            index: index),
       ),
     );
   }
@@ -54,7 +55,7 @@ class ExpansionPanelListExampleLocataire extends StatefulWidget {
   final Map<String, String?> dropdownLocataire;
   final VoidCallback onDelete;
   final String headerValue;
-
+  final int index;
   
   
   ExpansionPanelListExampleLocataire({
@@ -63,8 +64,7 @@ class ExpansionPanelListExampleLocataire extends StatefulWidget {
     required this.headerValue,
     required this.onDelete,
     required this.controllers, 
-    required this.fields, required this.dropdownLocataire
-    
+    required this.fields, required this.dropdownLocataire, required this.index    
   });
 
   @override

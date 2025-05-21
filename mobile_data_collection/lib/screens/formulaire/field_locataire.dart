@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_data_collection/utils/extensions.dart';
 
+import '../../utils/constants.dart';
+
 class BuildFieldLocataire extends StatefulWidget {
   
   final List<Map<String, String>> fields;
@@ -17,7 +19,7 @@ class BuildFieldLocataire extends StatefulWidget {
 }
 
 class BuildFieldLocataireState extends State<BuildFieldLocataire> {
-  final LocataireService locataireService = LocataireService("http://192.168.1.7:8081/api/locataires");
+  final LocataireService locataireService = LocataireService();
   bool allValuesValid = true;
 
   // Dropdown options for specific fields
@@ -29,7 +31,7 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
   void ajouterLocataire(Map<String, TextEditingController> controllerLocataire, Map<String, String?> dropdownLocataire) async {
     
     controllerLocataire.forEach((key, controller) {
-        String? value = controller.text;
+        String? value = controller.text.trim();
 
         if (value == null) {
           print('Clé: $key, Valeur: (nulle)');
@@ -42,23 +44,23 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
     if (allValuesValid) {
       final Locataire locataireData = Locataire(
       // Autres champs récupérés des contrôleurs
-      cni: controllerLocataire["cni"]?.text,
-      nom: controllerLocataire["nom"]?.text,
-      prenom: controllerLocataire["prenom"]?.text,
-      telephone: controllerLocataire["telephone"]?.text,
+      cni: controllerLocataire["cni"]?.text.trim(),
+      nom: controllerLocataire["nom"]?.text.trim(),
+      prenom: controllerLocataire["prenom"]?.text.trim(),
+      telephone: controllerLocataire["telephone"]?.text.trim(),
       typeOccupation: dropdownLocataire["typeOccupation"] ??
-          controllerLocataire["typeOccupation"]?.text,
+          controllerLocataire["typeOccupation"]?.text.trim(),
       dateSignatureContrat:
-          controllerLocataire["dateSignatureContrat"]?.text != null &&
-                  controllerLocataire["dateSignatureContrat"]!.text.isNotEmpty
-              ? DateTime.tryParse(controllerLocataire["dateSignatureContrat"]!.text)
+          controllerLocataire["dateSignatureContrat"]?.text.trim() != null &&
+                  controllerLocataire["dateSignatureContrat"]!.text.trim().isNotEmpty
+              ? DateTime.tryParse(controllerLocataire["dateSignatureContrat"]!.text.trim())
               : null,
-      loyerAnnuel: double.tryParse(controllerLocataire["loyerAnnuel"]?.text ?? "0"),
-      nbPieceOccupe: int.tryParse(controllerLocataire["nbPieceOccupe"]?.text ?? "0"),
-      activiteEconomique: controllerLocataire["activiteEconomique"]?.text,
+      loyerAnnuel: double.tryParse(controllerLocataire["loyerAnnuel"]?.text.trim() ?? "0"),
+      nbPieceOccupe: int.tryParse(controllerLocataire["nbPieceOccupe"]?.text.trim() ?? "0"),
+      activiteEconomique: controllerLocataire["activiteEconomique"]?.text.trim(),
       denomination: dropdownLocataire["denomination"] ??
-          controllerLocataire["denomination"]?.text,
-      commentaire: controllerLocataire["commentaire"]?.text,
+          controllerLocataire["denomination"]?.text.trim(),
+      commentaire: controllerLocataire["commentaire"]?.text.trim(),
     );
     final int? locataireTrouve =
         await locataireService.retournerLocataire(locataireData.cni);
@@ -66,7 +68,7 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
     if (locataireTrouve == 0) {
       try {
         await locataireService.ajouterLocataire(
-           controllerLocataire["matricule"]?.text, locataireData);
+           controllerLocataire["matricule"]?.text.trim(), locataireData);
 
         print("Locataire ajouté avec succès !");
       } catch (e) {
@@ -88,13 +90,6 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
   @override
   void initState() {
     super.initState();
-
-    // Initialiser les contrôleurs et les états d'expansion
-    for (var field in widget.fields) {
-      if (field["key"] != null) {
-        widget.controllers[field["key"]!] = TextEditingController();
-      }
-    }
   }
 
   @override
@@ -189,10 +184,10 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
                       .digitsOnly, // Permet uniquement les chiffres
                 ],
                   validator: (val) {
-                    if(val == null || val.isEmpty) {
+                    if(val == null || val.trim().isEmpty) {
                       return null;
                     }
-                    else if(!val.isValidNumber) {
+                    else if(!val.trim().isValidNumber) {
                       return 'Veuiller saisir un nombre valide'; 
                     }
                     else {
@@ -214,10 +209,10 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
                       )
                     ],
                     validator: (val) {
-                      if(val == null || val.isEmpty) {
+                      if(val == null || val.trim().isEmpty) {
                         return null;
                       }
-                      else if(!val.isValidName) {
+                      else if(!val.trim().isValidName) {
                         return 'Veuiller saisir un nom valide'; 
                       }
                       else {
@@ -234,10 +229,10 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
                 labelText: fieldKey,
                 controller: widget.controllers[fieldKey],
                 validator: (val) {
-                  if(val == null || val.isEmpty) {
+                  if(val == null || val.trim().isEmpty) {
                       return null;
                     }
-                    else if(!val.isValidPhone) {
+                    else if(!val.trim().isValidPhone) {
                       return 'Veuiller saisir un numéro de téléphone valide'; 
                     }
                     else {
@@ -254,10 +249,10 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
                 labelText: labelText,
                 controller: widget.controllers[fieldKey],
                 validator: (val) {
-                  if(val == null || val.isEmpty) {
+                  if(val == null || val.trim().isEmpty) {
                       return 'Ce champ est obligatoire';
                     }
-                    else if(!val.isValidCni) {
+                    else if(!val.trim().isValidCni) {
                       return 'Veuiller saisir un cni valide'; 
                     }
                     else {

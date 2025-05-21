@@ -8,6 +8,8 @@ import 'package:mobile_data_collection/utils/exports.dart';
 import 'package:mobile_data_collection/utils/extensions.dart';
 import 'package:http/http.dart' as http;
 
+import '../../utils/constants.dart';
+
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -18,42 +20,52 @@ class SignUpScreen extends StatefulWidget {
 class InitState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          width: screenSize.width,
-          height: screenSize.height,
-          child: Stack(
-            children: [
-              Positioned(
-                top: 50,
-                left: 20,
-                right: 20,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Logo en haut
-                    Image.asset('assets/images/logoT.png', width: 150),
-                    Text(
-                      'Création de compte',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xFFC3AD65),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 20),
+                Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.07),
+                        blurRadius: 18,
+                        offset: const Offset(0, 8),
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    _FormContent(),
-                  ],
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset('assets/images/logoT.png', width: 90),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'Création de compte',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFFC3AD65),
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      
+                      const SizedBox(height: 18),
+                      _FormContent(),
+                    ],
+                  ),
                 ),
-              ),
-              
-            ],
+              ],
+            ),
           ),
         ),
       ),
-      
     );
   }
 }
@@ -74,12 +86,12 @@ class __FormContentState extends State<_FormContent> {
   final TextEditingController _prenomController = TextEditingController();
   final TextEditingController _nomController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
-  RegisterUserDto user = RegisterUserDto("", "", "", "", "", "");
+  RegisterUserDto user = RegisterUserDto("", "", "", "", "", "", "");
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Future<void> SignUpUser(String email, String prenom, String nom, String username, String password) async {
-    Uri url = Uri.parse("http://192.168.1.7:8081/auth/signup");
+  Future<void> signUpUser(String email, String prenom, String nom, String username, String password) async {
+    Uri url = Uri.parse("http://teranga-gestion.kheush.xyz:8081/auth/signup");
     try {
       var response = await http.post(
         url,
@@ -92,7 +104,8 @@ class __FormContentState extends State<_FormContent> {
           'nom': nom,
           'username': username,
           'password': password,
-          'role': ''
+          'role': 'Agent de terrain',
+          'typePlateforme': 'MOBILE'
         }),
       );
 
@@ -129,7 +142,7 @@ class __FormContentState extends State<_FormContent> {
                     _errorMessage,
                     style: const TextStyle(
                       color: Colors.grey,
-                      fontSize: 9,
+                      fontSize: 10,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -140,7 +153,7 @@ class __FormContentState extends State<_FormContent> {
             TextFormField(
               controller: _emailController,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Ce champ ne peut pas être vide';
                 } else {
                   bool emailValid = RegExp(
@@ -166,9 +179,10 @@ class __FormContentState extends State<_FormContent> {
                   color: Color(0xFF8c6023), // Couleur du label en focus
                 ),
                 labelStyle: TextStyle(
-                  fontSize: 12, 
+                  fontSize: 11, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             _gap(),
             TextFormField(
@@ -179,10 +193,10 @@ class __FormContentState extends State<_FormContent> {
                     )
                   ],
                   validator: (val) {
-                    if(val == null || val.isEmpty) {
+                    if(val == null || val.trim().isEmpty) {
                       return 'Ce champ ne peut pas être vide';
                     }
-                    else if(!val.isValidName) {
+                    else if(!val.trim().isValidName) {
                       return 'Veuiller saisir un nom valide'; 
                     }
                     else {
@@ -205,6 +219,7 @@ class __FormContentState extends State<_FormContent> {
                   fontSize: 12, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             _gap(),
             TextFormField(
@@ -215,10 +230,10 @@ class __FormContentState extends State<_FormContent> {
                     )
                   ],
                   validator: (val) {
-                    if(val == null || val.isEmpty) {
+                    if(val == null || val.trim().isEmpty) {
                       return 'Ce champ ne peut pas être vide';
                     }
-                    else if(!val.isValidName) {
+                    else if(!val.trim().isValidName) {
                       return 'Veuiller saisir un nom valide'; 
                     }
                     else {
@@ -241,12 +256,13 @@ class __FormContentState extends State<_FormContent> {
                   fontSize: 12, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             _gap(),
              TextFormField(
               controller: _usernameController,
               validator: (val) {
-                    if(val == null || val.isEmpty) {
+                    if(val == null || val.trim().isEmpty) {
                       return 'Ce champ ne peut pas être vide';
                     }
                     else {
@@ -269,15 +285,16 @@ class __FormContentState extends State<_FormContent> {
                   fontSize: 12, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             _gap(),
             TextFormField(
               controller: _passwordController,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Ce champ ne peut pas être vide';
-                } else if (value.length < 4) {
-                  return 'Le mot de passe doit au moins contenir 4 caractères';
+                } else if (value.trim().length < 4) {
+                  return 'Le mot de passe doit au moins contenir 6 caractères';
                 } else {
                   return null;
                 }
@@ -308,6 +325,7 @@ class __FormContentState extends State<_FormContent> {
                   fontSize: 12, 
                 ),
               ),
+              style: TextStyle(fontSize: 12),
             ),
             _gap(),
             SizedBox(
@@ -330,7 +348,7 @@ class __FormContentState extends State<_FormContent> {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     
-                    SignUpUser(_emailController.text, _prenomController.text, _nomController.text, _usernameController.text, _passwordController.text);
+                    signUpUser(_emailController.text.trim(), _prenomController.text.trim(), _nomController.text.trim(), _usernameController.text.trim(), _passwordController.text.trim());
                   }
                 },
               ),
@@ -342,7 +360,7 @@ class __FormContentState extends State<_FormContent> {
                 children: [
                   const Text(
                     "Vous avez un compte ? ",
-                    style: TextStyle(fontSize: 10.0),
+                    style: TextStyle(fontSize: 8.0),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -361,7 +379,7 @@ class __FormContentState extends State<_FormContent> {
                     child: const Text(
                       "Se connecter",
                       style: TextStyle(
-                        fontSize: 10.0,
+                        fontSize: 8.0,
                         color: Color(0xFF8c6023),
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,

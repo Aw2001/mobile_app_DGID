@@ -17,6 +17,8 @@ class ExpansionPanelListExampleBienApp extends StatelessWidget {
   get dropDownBien => null;
   
   get fieldsBien => null;
+
+  get index => null;
   
 
   @override
@@ -33,7 +35,8 @@ class ExpansionPanelListExampleBienApp extends StatelessWidget {
             controllers: controllers,
             dropDownBien: dropDownBien,
             radioBien: radioBien,
-            fieldsBien: fieldsBien,),
+            fieldsBien: fieldsBien,
+            index:index),
       ),
     );
   }
@@ -58,6 +61,7 @@ class ExpansionPanelListExampleBien extends StatefulWidget {
   final Map<String, TextEditingController> controllers;
   final Map<String, String?> radioBien;
   final Map<String, String?> dropDownBien;
+  final int index;
   final VoidCallback onDelete;
   final String headerValue;
 
@@ -70,7 +74,7 @@ class ExpansionPanelListExampleBien extends StatefulWidget {
     required this.onDelete,
     required this.recensement,
     required this.controllers, 
-    required this.fieldsBien, required this.radioBien, required this.dropDownBien
+    required this.fieldsBien, required this.radioBien, required this.dropDownBien, required this.index
   });
 
   @override
@@ -111,12 +115,12 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleBie
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Container(
-        child: _buildPanel(),
+        child: _buildPanel(widget.index),
       ),
     );
   }
 
-  Widget _buildPanel() {
+  Widget _buildPanel(int index) {
     return Column(
       children: _data.map<Widget>((Item item) {
         int currentIndex = _data.indexOf(item);
@@ -131,7 +135,7 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleBie
               },
               children: [
                 ExpansionPanel(
-                  backgroundColor: kBackgroundColor,
+                  backgroundColor: const Color(0xFFF7F6F2),
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return ListTile(
                       title: Text(item.headerValue),
