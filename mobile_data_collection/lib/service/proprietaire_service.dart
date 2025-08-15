@@ -10,7 +10,7 @@ class ProprietaireService {
   Future<void> ajouterProprietaire(Proprietaire proprietaire) async {
 
     final response = await _dio.post(
-        "http://teranga-gestion.kheush.xyz:8081/api/proprietaires/add",
+        "http://$ip:8081/api/proprietaires/add",
         data: proprietaire.toJson(),  // Le corps de la requête
       );
     if (response.statusCode != 200) {
@@ -21,7 +21,7 @@ class ProprietaireService {
   Future<void> mettreAJourProprietaire(Proprietaire proprietaire) async {
   
     final response = await _dio.put(
-        "http://teranga-gestion.kheush.xyz:8081/api/proprietaires/update",
+        "http://$ip:8081/api/proprietaires/update",
         data: proprietaire.toJson(),  // Le corps de la requête
       );
     if (response.statusCode != 200) {
@@ -36,7 +36,7 @@ class ProprietaireService {
     }
     
     try {
-      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/proprietaires/research/$id");
+      final response = await _dio.get("http://$ip:8081/api/proprietaires/research/$id");
       if (response.statusCode == 200) {
         if (response.data == null || response.data.toString().isEmpty) {
           return 0;

@@ -202,7 +202,7 @@ class BuildFieldProprietaireState extends State<BuildFieldProprietaire> {
                 ),
             );
           } else if (fieldKey == "lieuNaissance" || fieldKey == "ninea" || fieldKey == "numeroIdentification" || fieldKey == "valeurLocativeMensuelle") {
-              String labelText = fieldKey == "numeroIdentification" ? "$fieldKey (obligatoire)" : fieldKey;
+              String labelText = fieldKey == "numeroIdentification" ? "$fieldKey" : fieldKey;
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),
                 child: CustomFormField(

@@ -564,7 +564,7 @@ class BuildFieldBienState extends State<BuildFieldBien> {
                  
 
                   // Ajouter une étoile pour "identifiant"
-                  String labelText = fieldKey == "identifiant" ? "$fieldKey (obligatoire)" : fieldKey;
+                  String labelText = fieldKey == "identifiant" ? "$fieldKey" : fieldKey;
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: CustomFormField(

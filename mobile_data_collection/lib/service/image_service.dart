@@ -24,7 +24,7 @@ class ImageService {
           });
           // Envoyer la requête
           final response = await _dio.post(
-            "http://teranga-gestion.kheush.xyz:8081/api/images/add/$identifiantBien",
+            "http://$ip:8081/api/images/add/$identifiantBien",
             data: formData
           );
 

@@ -242,7 +242,7 @@ class BuildFieldLocataireState extends State<BuildFieldLocataire> {
                 ),
               );
           } else if(fieldKey == 'cni') {
-              String labelText = fieldKey == "cni" ? "$fieldKey (obligatoire)" : fieldKey;
+              String labelText = fieldKey == "cni" ? "$fieldKey" : fieldKey;
               return Padding(
               padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: CustomFormField(

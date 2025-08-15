@@ -10,7 +10,7 @@ class ParcelleService {
     try {
     
       // Envoyer la requête GET
-      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/parcelles/bySection?sectionNumSec=$sectionNumSec&region=$region&nomDepart=$nomDepart&nomCommun=$nomCommun");
+      final response = await _dio.get("http://$ip:8081/api/parcelles/bySection?sectionNumSec=$sectionNumSec&region=$region&nomDepart=$nomDepart&nomCommun=$nomCommun");
 
       // Vérifier le statut de la réponse
       if (response.statusCode == 200) {

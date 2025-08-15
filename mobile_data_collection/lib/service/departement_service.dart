@@ -10,7 +10,7 @@ class DepartementService {
     try {
 
       // Construire l'URL avec le paramètre de requête
-      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/departements/byRegion?regionName=$regionName");
+      final response = await _dio.get("http://$ip:8081/api/departements/byRegion?regionName=$regionName");
      
       // Vérifier le statut de la réponse
       if (response.statusCode == 200) {

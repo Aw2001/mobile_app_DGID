@@ -85,7 +85,7 @@ class RecensementProvider extends ChangeNotifier {
         key: ValueKey(newIndex),
         children: [
           ExpansionPanelListExampleBien(
-            headerValue: 'Infos du local',
+            headerValue: 'Infos du bien',
             nbItems: recensementData.nbItemsForBien,
             onDelete: () {
               recensementData.panelsBien.removeWhere((panel) => panel.key == ValueKey(newIndex));
@@ -293,7 +293,7 @@ class RecensementProvider extends ChangeNotifier {
             key: ValueKey(i),
             children: [
               ExpansionPanelListExampleBien(
-                headerValue: 'Infos du local',
+                headerValue: 'Infos du bien',
                 nbItems: data.nbItemsForBien,
                 onDelete: () {
                   data.panelsBien.removeWhere((panel) => panel.key == ValueKey(i));

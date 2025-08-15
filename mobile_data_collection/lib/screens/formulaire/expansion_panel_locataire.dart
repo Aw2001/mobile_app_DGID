@@ -125,7 +125,7 @@ class _ExpansionPanelListExampleState extends State<ExpansionPanelListExampleLoc
               },
               children: [
                 ExpansionPanel(
-                  backgroundColor: kBackgroundColor,
+                  backgroundColor: const Color(0xFFF7F6F2),
                   headerBuilder: (BuildContext context, bool isExpanded) {
                     return ListTile(
                       title: Text(item.headerValue),

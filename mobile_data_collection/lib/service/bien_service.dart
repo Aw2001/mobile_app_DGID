@@ -11,7 +11,7 @@ class BienService {
   Future<void> ajouterBien(String? recensementId, Bien bien) async {
     
      final response = await _dio.post(
-        "http://teranga-gestion.kheush.xyz:8081/api/biens/add?recensementId=$recensementId",
+        "http://$ip:8081/api/biens/add?recensementId=$recensementId",
         data: bien.toJson(),  // Le corps de la requête
       );
     
@@ -23,7 +23,7 @@ class BienService {
   Future<Bien?> mettreAJourBien(String? recensementId, Bien bien) async {
     
     final response = await _dio.put(
-        "http://teranga-gestion.kheush.xyz:8081/api/biens/update?recensementId=$recensementId",
+        "http://$ip:8081/api/biens/update?recensementId=$recensementId",
         data: bien.toJson(),  // Le corps de la requête
       );
 
@@ -41,7 +41,7 @@ class BienService {
     }
     try {
     
-      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/biens/research/$id");
+      final response = await _dio.get("http://$ip:8081/api/biens/research/$id");
 
         if (response.statusCode == 200) {
           if (response.data == null || response.data.toString().isEmpty) {

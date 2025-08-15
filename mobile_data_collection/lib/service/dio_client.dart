@@ -34,7 +34,7 @@ class DioClient {
           NavigationService.redirectToLogin(); // On redirige
         } else if (e.type == DioExceptionType.unknown) {
           // Erreur inconnue (problème de connexion, etc.)
-          print("Erreur de connexionnnn: ${e.message}");
+          print("Erreur de connexion: ${e.message}");
         }
         return handler.next(e);
       },

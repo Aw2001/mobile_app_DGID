@@ -40,7 +40,7 @@ class LocataireService {
     }
     try {
       
-      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/locataires/research/$id");
+      final response = await _dio.get("http://$ip:8081/api/locataires/research/$id");
       if (response.statusCode == 200) {
         if (response.data == null || response.data.toString().isEmpty) {
           return 0;

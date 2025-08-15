@@ -9,7 +9,7 @@ class CommuneService {
   Future<List<String>> listerCommunes(String? departementName) async {
     try {
 
-      final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/communes/byDepartement?departementName=$departementName");
+      final response = await _dio.get("http://$ip:8081/api/communes/byDepartement?departementName=$departementName");
 
       // Vérifier le statut de la réponse
       if (response.statusCode == 200) {

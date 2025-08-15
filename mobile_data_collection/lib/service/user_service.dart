@@ -20,7 +20,7 @@ class UserService {
     try {
 
       // Envoi de la requête HTTP
-      final response = await _dio.get('http://teranga-gestion.kheush.xyz:8081/api/utilisateurs/$username');
+      final response = await _dio.get('http://$ip:8081/api/utilisateurs/$username');
 
       // Vérifiez si la réponse du serveur est réussie
       if (response.statusCode == 200) {
@@ -44,7 +44,7 @@ class UserService {
     try {
       
       // Envoi de la requête HTTP
-      final response = await _dio.get('http://teranga-gestion.kheush.xyz:8081/api/utilisateurs/initial/$username');
+      final response = await _dio.get('http://$ip:8081/api/utilisateurs/initial/$username');
        if (response.statusCode == 200) {
         final fullName = response.data?.toString() ?? "";
         if (fullName.isEmpty) {
@@ -90,7 +90,7 @@ class UserService {
 
   Future<String> getEmailByUsername(String username) async {
     try {
-      final response = await _dio.get('http://teranga-gestion.kheush.xyz:8081/api/utilisateurs/getEmail/$username');
+      final response = await _dio.get('http://$ip:8081/api/utilisateurs/getEmail/$username');
       if (response.statusCode == 200) {
         return response.data?.toString() ?? '';
       } else {
@@ -104,7 +104,7 @@ class UserService {
   Future<bool> login(String username, String password) async {
   try {
     final response = await http.post(
-      Uri.parse("http://teranga-gestion.kheush.xyz:8081/auth/login"),
+      Uri.parse("http://$ip:8081/auth/login"),
       headers: {
         'Content-Type': 'application/json',
       },

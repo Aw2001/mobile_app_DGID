@@ -13,7 +13,7 @@ class RecensementUtilisateurService {
       try{
 
         // Envoyer la requête GET
-        final response = await _dio.get("http://teranga-gestion.kheush.xyz:8081/api/recensementUtilisateurs/all/$email");
+        final response = await _dio.get("http://$ip:8081/api/recensementUtilisateurs/all/$email");
 
         // Vérifier le statut de la réponse
         if (response.statusCode == 200) {

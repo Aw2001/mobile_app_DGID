@@ -117,7 +117,7 @@ class _MultiFormPageState extends State<MultiFormPage> {
       state: currentStep > 1 ? StepState.complete : StepState.indexed,
       isActive: currentStep >= 1,
       title: Text(
-        "Local",
+        "Bien",
         style: TextStyle(fontSize: 10),
       ),
       content: Form(
